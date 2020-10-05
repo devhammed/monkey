@@ -39,14 +39,16 @@ const (
 	RETURN   = "RETURN"
 )
 
-type TokenType string
+// Type represents type of a token
+type Type string
 
+// Token represents a single token
 type Token struct {
-	Type    TokenType
+	Type    Type
 	Literal string
 }
 
-var keywords = map[string]TokenType{
+var keywords = map[string]Type{
 	"fn":     FUNCTION,
 	"let":    LET,
 	"true":   TRUE,
@@ -57,7 +59,7 @@ var keywords = map[string]TokenType{
 }
 
 // LookupIdent checks if a string is an identifier
-func LookupIdent(ident string) TokenType {
+func LookupIdent(ident string) Type {
 	if tok, ok := keywords[ident]; ok {
 		return tok
 	}

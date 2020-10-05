@@ -19,7 +19,7 @@ func New(input string) *Lexer {
 	return l
 }
 
-func (l *Lexer) newToken(tokenType token.TokenType) token.Token {
+func (l *Lexer) newToken(tokenType token.Type) token.Token {
 	return token.Token{Type: tokenType, Literal: string(l.ch)}
 }
 
