@@ -8,9 +8,9 @@ import (
 
 func TestLetStatements(t *testing.T) {
 	input := `
-let x 5;
-let = 10;
-let 838383;
+let x =  5;
+let y = 10;
+let z = 838383;
 `
 	l := lexer.New(input)
 	p := New(l)
@@ -32,7 +32,7 @@ let 838383;
 	}{
 		{"x"},
 		{"y"},
-		{"foobar"},
+		{"z"},
 	}
 
 	for i, tt := range tests {
