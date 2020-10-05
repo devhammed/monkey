@@ -1,42 +1,86 @@
 package token
 
 const (
-	// Language Internals
+	// ILLEGAL represents an illegal token
 	ILLEGAL = "ILLEGAL"
-	EOF     = "EOF"
 
-	// Identifiers + literals
-	IDENT = "IDENT" // add, foobar, x, y, ...
-	INT   = "INT"   // 1343456
+	// EOF represents end-of-file token
+	EOF = "EOF"
 
-	// Operators
-	ASSIGN   = "="
-	PLUS     = "+"
-	MINUS    = "-"
-	BANG     = "!"
+	// IDENT represents an identifier e.g add, foobar, x, y, ...
+	IDENT = "IDENT"
+
+	// INT represents an integer
+	INT = "INT"
+
+	// ASSIGN is assignment token
+	ASSIGN = "="
+
+	// PLUS is addition token
+	PLUS = "+"
+
+	// MINUS is substration token
+	MINUS = "-"
+
+	// BANG is a bang token
+	BANG = "!"
+
+	// ASTERISK is multiplication token
 	ASTERISK = "*"
-	SLASH    = "/"
-	LT       = "<"
-	GT       = ">"
-	EQ       = "=="
-	NOT_EQ   = "!="
 
-	// Delimiters
-	COMMA     = ","
+	// SLASH is a slash token
+	SLASH = "/"
+
+	// LT represents lesser than token
+	LT = "<"
+
+	// GT represents greater than token
+	GT = ">"
+
+	// EQ represents equals token
+	EQ = "=="
+
+	// NOTEQ represents not equals token
+	NOTEQ = "!="
+
+	// COMMA is a comma token
+	COMMA = ","
+
+	// SEMICOLON is a semicolon token
 	SEMICOLON = ";"
-	LPAREN    = "("
-	RPAREN    = ")"
-	LBRACE    = "{"
-	RBRACE    = "}"
 
-	// Keywords
+	// LPAREN is a left parentheses token
+	LPAREN = "("
+
+	// RPAREN is a right parentheses token
+	RPAREN = ")"
+
+	// LBRACE is a left curly braces token
+	LBRACE = "{"
+
+	// RBRACE is a right curly braces token
+	RBRACE = "}"
+
+	// FUNCTION is a function token
 	FUNCTION = "FUNCTION"
-	LET      = "LET"
-	TRUE     = "TRUE"
-	FALSE    = "FALSE"
-	IF       = "IF"
-	ELSE     = "ELSE"
-	RETURN   = "RETURN"
+
+	// LET is a let token
+	LET = "LET"
+
+	// TRUE is a truthy boolean token
+	TRUE = "TRUE"
+
+	// FALSE is a falsy boolean token
+	FALSE = "FALSE"
+
+	// IF is a if statement token
+	IF = "IF"
+
+	// ELSE is a else statement token
+	ELSE = "ELSE"
+
+	// RETURN is a return statement token
+	RETURN = "RETURN"
 )
 
 // Type represents type of a token
