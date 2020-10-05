@@ -92,6 +92,7 @@ type Token struct {
 	Literal string
 }
 
+// keywords map are the supported language keywords
 var keywords = map[string]Type{
 	"fn":     FUNCTION,
 	"let":    LET,
