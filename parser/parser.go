@@ -7,6 +7,7 @@ import (
 	"monkey/token"
 )
 
+// Parser struct
 type Parser struct {
 	l         *lexer.Lexer
 	curToken  token.Token
@@ -14,6 +15,7 @@ type Parser struct {
 	errors    []string
 }
 
+// New creates a new instance of parser
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{
 		l:      l,
@@ -25,10 +27,12 @@ func New(l *lexer.Lexer) *Parser {
 	return p
 }
 
+// Errors returns list of parsing errors
 func (p *Parser) Errors() []string {
 	return p.errors
 }
 
+// ParseProgram parses the AST starting from the root node
 func (p *Parser) ParseProgram() *ast.Program {
 	program := &ast.Program{}
 	program.Statements = []ast.Statement{}
@@ -70,8 +74,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 		return nil
 	}
 
-	// TODO: We're skipping the expressions until we
-	// encounter a semicolon
+	// TODO: We're skipping the expressions until we encounter a semicolon
 	for !p.curTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
@@ -84,8 +87,7 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 
 	p.nextToken()
 
-	// TODO: We're skipping the expressions until we
-	// encounter a semicolon
+	// TODO: We're skipping the expressions until we encounter a semicolon
 	for !p.curTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
