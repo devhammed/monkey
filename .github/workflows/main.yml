@@ -14,6 +14,8 @@ jobs:
 
       - name: Build Binaries
         uses: sosedoff/actions/golang-build@master
+        with:
+          args: darwin/amd64 darwin/386 linux/amd64 linux/arm64 linux/arm linux/386 windows/amd64 windows/386
         env:
           GO111MODULE: on
 
