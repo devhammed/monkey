@@ -81,6 +81,8 @@ const (
 
 	// RETURN is a return statement token
 	RETURN = "RETURN"
+
+	STRING = "STRING"
 )
 
 // Type represents type of a token
