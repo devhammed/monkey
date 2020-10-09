@@ -5,6 +5,7 @@ import (
 	"monkey/object"
 )
 
+// Eval evaluates the AST passed
 func Eval(node ast.Node) object.Object {
 	switch node := node.(type) {
 	// Statements
