@@ -73,6 +73,8 @@ const (
 	// FALSE is a falsy boolean token
 	FALSE = "FALSE"
 
+	NULL = "NULL"
+
 	// IF is a if statement token
 	IF = "IF"
 
@@ -87,6 +89,8 @@ const (
 	LBRACKET = "["
 
 	RBRACKET = "]"
+
+	COLON = ":"
 )
 
 // Type represents type of a token
@@ -104,6 +108,7 @@ var keywords = map[string]Type{
 	"let":    LET,
 	"true":   TRUE,
 	"false":  FALSE,
+	"null":   NULL,
 	"if":     IF,
 	"else":   ELSE,
 	"return": RETURN,
