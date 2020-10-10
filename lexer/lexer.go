@@ -12,37 +12,7 @@ type Lexer struct {
 
 // New creates a new instance of Lexer
 func New(input string) *Lexer {
-	std := `
-		let array_map = fn(arr, f) {
-			let iter = fn(arr, accumulated) {
-				if (len(arr) == 0) {
-					accumulated
-				} else {
-					let accumulated_copy = array_copy(accumulated);
-
-					array_push(accumulated_copy, f(array_first(arr)));
-
-  				iter(array_rest(arr), accumulated_copy);
-				}
-			};
-
-			iter(arr, []);
-		};
-
-		let array_reduce = fn(arr, initial, f) {
-			let iter = fn(arr, result) {
-				if (len(arr) == 0) {
-					result
-				} else {
-					iter(array_rest(arr), f(result, array_first(arr)));
-				}
-			};
-
-			iter(arr, initial);
-		};
-	`
-
-	l := &Lexer{input: std + input}
+	l := &Lexer{input: input}
 
 	l.readChar()
 
@@ -107,6 +77,8 @@ func (l *Lexer) NextToken() token.Token {
 	case '"':
 		tok.Type = token.STRING
 		tok.Literal = l.readString()
+	case ':':
+		tok = l.newToken(token.COLON)
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
