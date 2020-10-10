@@ -225,6 +225,54 @@ func init() {
 				return NULL
 			},
 		},
+		"array_reduce": &object.Builtin{
+			Fn: func(args ...object.Object) object.Object {
+				maxArgs := 4
+				minArgs := 3
+				hasThis := len(args) == maxArgs
+
+				if len(args) < minArgs {
+					return newError("wrong number of arguments. got=%d, expected at least=%d",
+						len(args), minArgs)
+				}
+
+				if len(args) > maxArgs {
+					return newError("wrong number of arguments. got=%d, expected max=%d",
+						len(args), maxArgs)
+				}
+
+				if args[0].Type() != object.ARRAY_OBJ {
+					return newError("first argument to `reduce` must be ARRAY, got %s",
+						args[0].Type())
+				}
+
+				if args[2].Type() != object.FUNCTION_OBJ && args[1].Type() != object.BUILTIN_OBJ {
+					return newError("third argument to `reduce` must be FUNCTION, got %s",
+						args[1].Type())
+				}
+
+				if hasThis && args[3].Type() != object.ARRAY_OBJ {
+					return newError("fourth argument to `reduce` must be ARRAY, got %s",
+						args[0].Type())
+				}
+
+				arr := args[0].(*object.Array)
+				elements := arr.Elements
+				acc := args[1]
+
+				for i := 0; i < len(elements); i++ {
+					fnArgs := []object.Object{acc, elements[i], &object.Integer{Value: int64(i)}}
+
+					if hasThis {
+						fnArgs = append(fnArgs, arr)
+					}
+
+					acc = applyFunction(args[2], fnArgs)
+				}
+
+				return acc
+			},
+		},
 		"array_copy": &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {
 				if len(args) != 1 {
