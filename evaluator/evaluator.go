@@ -180,6 +180,51 @@ func init() {
 				return &object.Array{Elements: newElements}
 			},
 		},
+		"array_each": &object.Builtin{
+			Fn: func(args ...object.Object) object.Object {
+				hasThis := len(args) == 3
+
+				if len(args) < 2 {
+					return newError("wrong number of arguments. got=%d, expected at least=2",
+						len(args))
+				}
+
+				if len(args) > 3 {
+					return newError("wrong number of arguments. got=%d, expected max=3",
+						len(args))
+				}
+
+				if args[0].Type() != object.ARRAY_OBJ {
+					return newError("first argument to `each` must be ARRAY, got %s",
+						args[0].Type())
+				}
+
+				if args[1].Type() != object.FUNCTION_OBJ && args[1].Type() != object.BUILTIN_OBJ {
+					return newError("second argument to `each` must be FUNCTION, got %s",
+						args[1].Type())
+				}
+
+				if hasThis && args[2].Type() != object.ARRAY_OBJ {
+					return newError("third argument to `each` must be ARRAY, got %s",
+						args[0].Type())
+				}
+
+				arr := args[0].(*object.Array)
+				elements := arr.Elements
+
+				for i := 0; i < len(elements); i++ {
+					fnArgs := []object.Object{elements[i], &object.Integer{Value: int64(i)}}
+
+					if hasThis {
+						fnArgs = append(fnArgs, arr)
+					}
+
+					applyFunction(args[1], fnArgs)
+				}
+
+				return NULL
+			},
+		},
 		"array_copy": &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {
 				if len(args) != 1 {
@@ -351,9 +396,12 @@ func applyFunction(fn object.Object, args []object.Object) object.Object {
 		argsLength := len(args)
 		parametersLength := len(fn.Parameters)
 
-		if argsLength != parametersLength {
-			return newError("wrong number of arguments passed to function. got=%d, expected=%d",
-				argsLength, parametersLength)
+		if argsLength < parametersLength {
+			return newError(
+				"number of arguments passed to function is lesser than expected. got=%d, expected=%d",
+				argsLength,
+				parametersLength,
+			)
 		}
 
 		extendedEnv := extendFunctionEnv(fn, args)
