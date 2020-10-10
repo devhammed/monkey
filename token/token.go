@@ -83,6 +83,10 @@ const (
 	RETURN = "RETURN"
 
 	STRING = "STRING"
+
+	LBRACKET = "["
+
+	RBRACKET = "]"
 )
 
 // Type represents type of a token
