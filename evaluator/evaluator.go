@@ -6,6 +6,7 @@ import (
 	"monkey/object"
 )
 
+// Builtin singletons
 var (
 	NULL  = &object.Null{}
 	TRUE  = &object.Boolean{Value: true}
