@@ -355,7 +355,9 @@ func applyFunction(fn object.Object, args []object.Object) object.Object {
 		}
 
 		extendedEnv := extendFunctionEnv(fn, args)
+
 		extendedEnv.Set("arguments", &object.Array{Elements: args})
+
 		evaluated := Eval(fn.Body, extendedEnv)
 
 		return unwrapReturnValue(evaluated)
