@@ -82,6 +82,8 @@ func (l *Lexer) NextToken() token.Token {
 		tok = l.newToken(token.LBRACKET)
 	case ']':
 		tok = l.newToken(token.RBRACKET)
+	case '\'':
+		fallthrough
 	case '"':
 		tok.Type = token.STRING
 		tok.Literal = l.readString()
@@ -132,6 +134,7 @@ func (l *Lexer) readLine() string {
 }
 
 func (l *Lexer) readString() string {
+	ch := l.ch
 	var b bytes.Buffer
 
 	for {
@@ -142,6 +145,8 @@ func (l *Lexer) readString() string {
 			switch l.peekChar() {
 			case '"':
 				b.WriteByte('"')
+			case '\'':
+				b.WriteByte('\'')
 			case 'n':
 				b.WriteByte('\n')
 			case 'r':
@@ -158,7 +163,7 @@ func (l *Lexer) readString() string {
 			continue
 		}
 
-		if l.ch == '"' || l.ch == 0 {
+		if l.ch == ch || l.ch == 0 {
 			break
 		}
 
