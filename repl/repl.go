@@ -40,7 +40,7 @@ func Start(in io.Reader, out io.Writer) {
 
 		line := scanner.Text()
 
-		evaluated := evaluator.Run(line, env, out)
+		evaluated := evaluator.Run(line, "__REPL__", evaluator.TRUE, env, out)
 
 		if evaluated != nil {
 			io.WriteString(out, evaluated.Inspect())

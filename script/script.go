@@ -11,7 +11,8 @@ import (
 
 // Start runs the script file passed
 func Start(out io.Writer, args []string) {
-	data, err := ioutil.ReadFile(args[0])
+	file := args[0]
+	data, err := ioutil.ReadFile(file)
 
 	if err != nil {
 		fmt.Println("File reading error", err)
@@ -29,7 +30,7 @@ func Start(out io.Writer, args []string) {
 
 	env.Set("ARGV", &object.Array{Elements: scriptArgs})
 
-	evaluated := evaluator.Run(string(data), env, out)
+	evaluated := evaluator.Run(string(data), file, evaluator.TRUE, env, out)
 
 	if evaluated != nil && evaluated.Type() == object.ERROR_OBJ {
 		io.WriteString(out, evaluated.Inspect())
