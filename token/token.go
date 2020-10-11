@@ -99,6 +99,9 @@ const (
 
 	// COMMENT is a comment
 	COMMENT = "#"
+
+	// DOT is a dot
+	DOT = "."
 )
 
 // Type represents type of a token
