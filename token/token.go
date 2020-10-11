@@ -73,6 +73,7 @@ const (
 	// FALSE is a falsy boolean token
 	FALSE = "FALSE"
 
+	// NULL represents a null value
 	NULL = "NULL"
 
 	// IF is a if statement token
@@ -84,13 +85,20 @@ const (
 	// RETURN is a return statement token
 	RETURN = "RETURN"
 
+	// STRING represents a string literal
 	STRING = "STRING"
 
+	// LBRACKET is left bracket token
 	LBRACKET = "["
 
+	// RBRACKET is right bracket token
 	RBRACKET = "]"
 
+	// COLON is a colon token
 	COLON = ":"
+
+	// COMMENT is a comment
+	COMMENT = "#"
 )
 
 // Type represents type of a token

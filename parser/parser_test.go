@@ -7,6 +7,36 @@ import (
 	"testing"
 )
 
+func TestComments(t *testing.T) {
+	tests := []struct {
+		input           string
+		expectedComment string
+	}{
+		{"#!monkey", "!monkey"},
+		{"# foo", " foo"},
+		{"  # foo", " foo"},
+	}
+
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+		program := p.ParseProgram()
+
+		checkParserErrors(t, p)
+
+		if len(program.Statements) != 1 {
+			t.Fatalf("program.Statements does not contain 1 statements. got=%d",
+				len(program.Statements))
+		}
+
+		comment := program.Statements[0]
+
+		if !testComment(t, comment, tt.expectedComment) {
+			return
+		}
+	}
+}
+
 func TestLetStatements(t *testing.T) {
 	tests := []struct {
 		input              string
@@ -869,6 +899,22 @@ func TestParsingHashLiteralsWithExpressions(t *testing.T) {
 
 		testFunc(value)
 	}
+}
+
+func testComment(t *testing.T, s ast.Statement, expected string) bool {
+	comment, ok := s.(*ast.Comment)
+
+	if !ok {
+		t.Errorf("s not *ast.Comment. got=%T", s)
+		return false
+	}
+
+	if comment.Value != expected {
+		t.Errorf("comment.Value not '%s'. got=%s", expected, comment.Value)
+		return false
+	}
+
+	return true
 }
 
 func testLetStatement(t *testing.T, s ast.Statement, name string) bool {

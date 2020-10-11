@@ -1,6 +1,9 @@
 package lexer
 
-import "monkey/token"
+import (
+	"bytes"
+	"monkey/token"
+)
 
 // Lexer is a source code lexing struct
 type Lexer struct {
@@ -30,6 +33,9 @@ func (l *Lexer) NextToken() token.Token {
 	l.skipWhitespace()
 
 	switch l.ch {
+	case '#':
+		tok.Type = token.COMMENT
+		tok.Literal = l.readLine()
 	case '=':
 		if l.peekChar() == '=' {
 			ch := l.ch
@@ -109,18 +115,55 @@ func (l *Lexer) skipWhitespace() {
 	}
 }
 
-func (l *Lexer) readString() string {
+func (l *Lexer) readLine() string {
 	position := l.position + 1
 
 	for {
 		l.readChar()
 
-		if l.ch == '"' || l.ch == 0 {
+		if l.ch == '\r' || l.ch == '\n' || l.ch == 0 {
 			break
 		}
 	}
 
 	return l.input[position:l.position]
+}
+
+func (l *Lexer) readString() string {
+	var b bytes.Buffer
+
+	for {
+		l.readChar()
+
+		// Support some basic escapes like \"
+		if l.ch == '\\' {
+			switch l.peekChar() {
+			case '"':
+				b.WriteByte('"')
+			case 'n':
+				b.WriteByte('\n')
+			case 'r':
+				b.WriteByte('\r')
+			case 't':
+				b.WriteByte('\t')
+			case '\\':
+				b.WriteByte('\\')
+			}
+
+			// Skip over the '\\' and the matched single escape char
+			l.readChar()
+
+			continue
+		}
+
+		if l.ch == '"' || l.ch == 0 {
+			break
+		}
+
+		b.WriteByte(l.ch)
+	}
+
+	return b.String()
 }
 
 func (l *Lexer) readNumber() string {
