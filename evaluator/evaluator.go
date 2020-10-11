@@ -382,7 +382,7 @@ func Run(
 
 	env.Set("MAIN", isMain)
 	env.Set("FILE", &object.String{Value: file})
-	env.Set("MONKEY_VERSION", &object.String{Value: "v0.2.1"})
+	env.Set("MONKEY_VERSION", &object.String{Value: "v0.2.2"})
 
 	return Eval(program, env)
 }
