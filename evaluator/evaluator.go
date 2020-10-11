@@ -13,9 +13,10 @@ import (
 
 // Builtin singletons
 var (
-	NULL  = &object.Null{}
-	TRUE  = &object.Boolean{Value: true}
-	FALSE = &object.Boolean{Value: false}
+	NULL           = &object.Null{}
+	TRUE           = &object.Boolean{Value: true}
+	FALSE          = &object.Boolean{Value: false}
+	MONKEY_VERSION = &object.String{Value: "v0.2.2"}
 )
 
 // the "init" function is necessary to prevent initialization loop error.
@@ -381,8 +382,8 @@ func Run(
 	}
 
 	env.Set("MAIN", isMain)
+	env.Set("MONKEY_VERSION", MONKEY_VERSION)
 	env.Set("FILE", &object.String{Value: file})
-	env.Set("MONKEY_VERSION", &object.String{Value: "v0.2.2"})
 
 	return Eval(program, env)
 }
