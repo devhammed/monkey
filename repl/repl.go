@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"io"
 	"monkey/evaluator"
-	"monkey/lexer"
 	"monkey/object"
-	"monkey/parser"
+	"os/user"
 )
 
 // PROMPT is the repl input prompt
@@ -15,11 +14,24 @@ const PROMPT = ">> "
 
 // Start is the repl loop function
 func Start(in io.Reader, out io.Writer) {
-	scanner := bufio.NewScanner(in)
+	user, err := user.Current()
 	env := object.NewEnvironment()
+	scanner := bufio.NewScanner(in)
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf(
+		"Hello %s! This is the Monkey programming language!\n",
+		user.Username,
+	)
+
+	fmt.Printf("Feel free to type in commands.\n")
 
 	for {
 		fmt.Printf(PROMPT)
+
 		scanned := scanner.Scan()
 
 		if !scanned {
@@ -27,30 +39,12 @@ func Start(in io.Reader, out io.Writer) {
 		}
 
 		line := scanner.Text()
-		l := lexer.New(line)
-		p := parser.New(l)
-		program := p.ParseProgram()
 
-		if len(p.Errors()) != 0 {
-			printParserErrors(out, p.Errors())
-
-			continue
-		}
-
-		evaluated := evaluator.Eval(program, env)
+		evaluated := evaluator.Run(line, env, out)
 
 		if evaluated != nil {
 			io.WriteString(out, evaluated.Inspect())
 			io.WriteString(out, "\n")
 		}
-	}
-}
-
-func printParserErrors(out io.Writer, errors []string) {
-	io.WriteString(out, "Woops! We ran into some monkey business here!\n")
-	io.WriteString(out, " parser errors:\n")
-
-	for _, msg := range errors {
-		io.WriteString(out, "\t"+msg+"\n")
 	}
 }
