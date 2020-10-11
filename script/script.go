@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"monkey/evaluator"
 	"monkey/object"
+	"os"
 )
 
 // Start runs the script file passed
@@ -28,5 +29,11 @@ func Start(out io.Writer, args []string) {
 
 	env.Set("ARGV", &object.Array{Elements: scriptArgs})
 
-	evaluator.Run(string(data), env, out)
+	evaluated := evaluator.Run(string(data), env, out)
+
+	if evaluated != nil && evaluated.Type() == object.ERROR_OBJ {
+		io.WriteString(out, evaluated.Inspect())
+		io.WriteString(out, "\n")
+		os.Exit(1)
+	}
 }
