@@ -2,8 +2,11 @@ package evaluator
 
 import (
 	"fmt"
+	"io"
 	"monkey/ast"
+	"monkey/lexer"
 	"monkey/object"
+	"monkey/parser"
 )
 
 // Builtin singletons
@@ -295,6 +298,26 @@ func init() {
 			},
 		},
 	}
+}
+
+// Run lexes, parses and evaluates code
+func Run(code string, env *object.Environment, out io.Writer) object.Object {
+	l := lexer.New(code)
+	p := parser.New(l)
+	program := p.ParseProgram()
+
+	if len(p.Errors()) != 0 {
+		io.WriteString(out, "Woops! We ran into some monkey business here!\n")
+		io.WriteString(out, " parser errors:\n")
+
+		for _, msg := range p.Errors() {
+			io.WriteString(out, "\t"+msg+"\n")
+		}
+
+		return nil
+	}
+
+	return Eval(program, env)
 }
 
 // Eval evaluates the AST passed
