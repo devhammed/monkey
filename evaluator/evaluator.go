@@ -305,12 +305,13 @@ func Run(code string, env *object.Environment, out io.Writer) object.Object {
 	l := lexer.New(code)
 	p := parser.New(l)
 	program := p.ParseProgram()
+	errors := p.Errors()
 
-	if len(p.Errors()) != 0 {
+	if len(errors) != 0 {
 		io.WriteString(out, "Woops! We ran into some monkey business here!\n")
 		io.WriteString(out, " parser errors:\n")
 
-		for _, msg := range p.Errors() {
+		for _, msg := range errors {
 			io.WriteString(out, "\t"+msg+"\n")
 		}
 
