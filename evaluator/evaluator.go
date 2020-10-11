@@ -181,6 +181,44 @@ func init() {
 				return &object.Array{Elements: lines}
 			},
 		},
+		"file_write": &object.Builtin{
+			Fn: func(args ...object.Object) object.Object {
+				if len(args) != 3 {
+					return newError("wrong number of arguments. got=%d, want=3",
+						len(args))
+				}
+
+				if args[0].Type() != object.STRING_OBJ {
+					return newError("first argument to `file_write` must be STRING, got %s",
+						args[0].Type())
+				}
+
+				if args[1].Type() != object.STRING_OBJ {
+					return newError("second argument to `file_write` must be STRING, got %s",
+						args[1].Type())
+				}
+
+				if args[2].Type() != object.INTEGER_OBJ {
+					return newError("third argument to `file_write` must be INTEGER, got %s",
+						args[2].Type())
+				}
+
+				fileName := args[0].Inspect()
+				filePerms := args[2].(*object.Integer)
+
+				err := ioutil.WriteFile(
+					fileName,
+					[]byte(args[1].Inspect()),
+					os.FileMode(filePerms.Value),
+				)
+
+				if err != nil {
+					return newError(err.Error())
+				}
+
+				return NULL
+			},
+		},
 		"array_first": &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {
 				if len(args) != 1 {
