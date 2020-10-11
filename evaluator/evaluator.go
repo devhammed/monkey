@@ -317,6 +317,8 @@ func Run(code string, env *object.Environment, out io.Writer) object.Object {
 		return nil
 	}
 
+	env.Set("MONKEY_VERSION", &object.String{Value: "0.1.1"})
+
 	return Eval(program, env)
 }
 
