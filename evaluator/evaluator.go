@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -98,8 +99,7 @@ func init() {
 				data, err := ioutil.ReadFile(file)
 
 				if err != nil {
-					return newError("failed to require file: %s",
-						file)
+					return newError("failed to require file: %s", err.Error())
 				}
 
 				env := object.NewEnvironment()
@@ -117,6 +117,70 @@ func init() {
 				return env.ExportedHash()
 			},
 		},
+		"file_read": &object.Builtin{
+			Fn: func(args ...object.Object) object.Object {
+				if len(args) != 1 {
+					return newError("wrong number of arguments. got=%d, want=1",
+						len(args))
+				}
+
+				if args[0].Type() != object.STRING_OBJ {
+					return newError("argument to `file_read` must be STRING, got %s",
+						args[0].Type())
+				}
+
+				fileName := args[0].Inspect()
+
+				data, err := ioutil.ReadFile(fileName)
+
+				if err != nil {
+					return newError(err.Error())
+				}
+
+				return &object.String{Value: string(data)}
+			},
+		},
+		"file_readlines": &object.Builtin{
+			Fn: func(args ...object.Object) object.Object {
+				if len(args) != 1 {
+					return newError("wrong number of arguments. got=%d, want=1",
+						len(args))
+				}
+
+				if args[0].Type() != object.STRING_OBJ {
+					return newError("argument to `file_read` must be STRING, got %s",
+						args[0].Type())
+				}
+
+				fileName := args[0].Inspect()
+
+				f, err := os.Open(fileName)
+
+				if err != nil {
+					return newError(err.Error())
+				}
+
+				s := bufio.NewScanner(f)
+
+				var lines []object.Object
+
+				for s.Scan() {
+					lines = append(lines, &object.String{Value: s.Text()})
+				}
+
+				err = s.Err()
+
+				if err != nil {
+					return newError(err.Error())
+				}
+
+				if err = f.Close(); err != nil {
+					return newError(err.Error())
+				}
+
+				return &object.Array{Elements: lines}
+			},
+		},
 		"array_first": &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {
 				if len(args) != 1 {
@@ -125,7 +189,7 @@ func init() {
 				}
 
 				if args[0].Type() != object.ARRAY_OBJ {
-					return newError("argument to `first` must be ARRAY, got %s",
+					return newError("argument to `array_first` must be ARRAY, got %s",
 						args[0].Type())
 				}
 
@@ -146,7 +210,7 @@ func init() {
 				}
 
 				if args[0].Type() != object.ARRAY_OBJ {
-					return newError("argument to `last` must be ARRAY, got %s",
+					return newError("argument to `array_last` must be ARRAY, got %s",
 						args[0].Type())
 				}
 
@@ -168,7 +232,7 @@ func init() {
 				}
 
 				if args[0].Type() != object.ARRAY_OBJ {
-					return newError("argument to `rest` must be ARRAY, got %s",
+					return newError("argument to `array_rest` must be ARRAY, got %s",
 						args[0].Type())
 				}
 
@@ -193,7 +257,7 @@ func init() {
 				}
 
 				if args[0].Type() != object.ARRAY_OBJ {
-					return newError("argument to `push` must be ARRAY, got %s",
+					return newError("argument to `array_push` must be ARRAY, got %s",
 						args[0].Type())
 				}
 
@@ -223,12 +287,12 @@ func init() {
 				}
 
 				if args[0].Type() != object.ARRAY_OBJ {
-					return newError("first argument to `map` must be ARRAY, got %s",
+					return newError("first argument to `array_map` must be ARRAY, got %s",
 						args[0].Type())
 				}
 
 				if args[1].Type() != object.FUNCTION_OBJ && args[1].Type() != object.BUILTIN_OBJ {
-					return newError("second argument to `map` must be FUNCTION, got %s",
+					return newError("second argument to `array_map` must be FUNCTION, got %s",
 						args[1].Type())
 				}
 
@@ -265,17 +329,17 @@ func init() {
 				}
 
 				if args[0].Type() != object.ARRAY_OBJ {
-					return newError("first argument to `each` must be ARRAY, got %s",
+					return newError("first argument to `array_each` must be ARRAY, got %s",
 						args[0].Type())
 				}
 
 				if args[1].Type() != object.FUNCTION_OBJ && args[1].Type() != object.BUILTIN_OBJ {
-					return newError("second argument to `each` must be FUNCTION, got %s",
+					return newError("second argument to `array_each` must be FUNCTION, got %s",
 						args[1].Type())
 				}
 
 				if hasThis && args[2].Type() != object.ARRAY_OBJ {
-					return newError("third argument to `each` must be ARRAY, got %s",
+					return newError("third argument to `array_each` must be ARRAY, got %s",
 						args[0].Type())
 				}
 
@@ -312,17 +376,17 @@ func init() {
 				}
 
 				if args[0].Type() != object.ARRAY_OBJ {
-					return newError("first argument to `reduce` must be ARRAY, got %s",
+					return newError("first argument to `array_reduce` must be ARRAY, got %s",
 						args[0].Type())
 				}
 
 				if args[2].Type() != object.FUNCTION_OBJ && args[1].Type() != object.BUILTIN_OBJ {
-					return newError("third argument to `reduce` must be FUNCTION, got %s",
+					return newError("third argument to `array_reduce` must be FUNCTION, got %s",
 						args[1].Type())
 				}
 
 				if hasThis && args[3].Type() != object.ARRAY_OBJ {
-					return newError("fourth argument to `reduce` must be ARRAY, got %s",
+					return newError("fourth argument to `array_reduce` must be ARRAY, got %s",
 						args[0].Type())
 				}
 
@@ -351,7 +415,7 @@ func init() {
 				}
 
 				if args[0].Type() != object.ARRAY_OBJ {
-					return newError("argument to `push` must be ARRAY, got %s",
+					return newError("argument to `array_copy` must be ARRAY, got %s",
 						args[0].Type())
 				}
 
