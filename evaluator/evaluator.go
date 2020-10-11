@@ -44,6 +44,16 @@ func init() {
 				}
 			},
 		},
+		"type": &object.Builtin{
+			Fn: func(args ...object.Object) object.Object {
+				if len(args) != 1 {
+					return newError("wrong number of arguments. got=%d, want=1",
+						len(args))
+				}
+
+				return &object.String{Value: string(args[0].Type())}
+			},
+		},
 		"puts": &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {
 				for _, arg := range args {
