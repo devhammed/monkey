@@ -3,10 +3,12 @@ package evaluator
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"monkey/ast"
 	"monkey/lexer"
 	"monkey/object"
 	"monkey/parser"
+	"os"
 )
 
 // Builtin singletons
@@ -24,7 +26,7 @@ var builtins = map[string]*object.Builtin{}
 func init() {
 	builtins = map[string]*object.Builtin{
 		"len": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
+			Fn: func(env *object.Environment, args ...object.Object) object.Object {
 				if len(args) != 1 {
 					return newError("wrong number of arguments. got=%d, want=1",
 						len(args))
@@ -42,7 +44,7 @@ func init() {
 			},
 		},
 		"puts": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
+			Fn: func(env *object.Environment, args ...object.Object) object.Object {
 				for _, arg := range args {
 					fmt.Println(arg.Inspect())
 				}
@@ -50,8 +52,33 @@ func init() {
 				return NULL
 			},
 		},
+		"import": &object.Builtin{
+			Fn: func(env *object.Environment, args ...object.Object) object.Object {
+				if len(args) != 1 {
+					return newError("wrong number of arguments. got=%d, want=1",
+						len(args))
+				}
+
+				if args[0].Type() != object.STRING_OBJ {
+					return newError("argument to `first` must be STRING, got %s",
+						args[0].Type())
+				}
+
+				file := args[0].Inspect()
+				data, err := ioutil.ReadFile(file)
+
+				if err != nil {
+					return newError("failed to import file: %s",
+						file)
+				}
+
+				Run(string(data), env, os.Stdout)
+
+				return NULL
+			},
+		},
 		"array_first": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
+			Fn: func(env *object.Environment, args ...object.Object) object.Object {
 				if len(args) != 1 {
 					return newError("wrong number of arguments. got=%d, want=1",
 						len(args))
@@ -72,7 +99,7 @@ func init() {
 			},
 		},
 		"array_last": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
+			Fn: func(env *object.Environment, args ...object.Object) object.Object {
 				if len(args) != 1 {
 					return newError("wrong number of arguments. got=%d, want=1",
 						len(args))
@@ -94,7 +121,7 @@ func init() {
 			},
 		},
 		"array_rest": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
+			Fn: func(env *object.Environment, args ...object.Object) object.Object {
 				if len(args) != 1 {
 					return newError("wrong number of arguments. got=%d, want=1",
 						len(args))
@@ -119,7 +146,7 @@ func init() {
 			},
 		},
 		"array_push": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
+			Fn: func(env *object.Environment, args ...object.Object) object.Object {
 				if len(args) != 2 {
 					return newError("wrong number of arguments. got=%d, want=2",
 						len(args))
@@ -144,7 +171,7 @@ func init() {
 			},
 		},
 		"array_map": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
+			Fn: func(env *object.Environment, args ...object.Object) object.Object {
 				if len(args) < 2 {
 					return newError("wrong number of arguments. got=%d, expected at least=2",
 						len(args))
@@ -177,14 +204,14 @@ func init() {
 						fnArgs = append(fnArgs, arr)
 					}
 
-					newElements[i] = applyFunction(args[1], fnArgs)
+					newElements[i] = applyFunction(env, args[1], fnArgs)
 				}
 
 				return &object.Array{Elements: newElements}
 			},
 		},
 		"array_each": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
+			Fn: func(env *object.Environment, args ...object.Object) object.Object {
 				hasThis := len(args) == 3
 
 				if len(args) < 2 {
@@ -222,14 +249,14 @@ func init() {
 						fnArgs = append(fnArgs, arr)
 					}
 
-					applyFunction(args[1], fnArgs)
+					applyFunction(env, args[1], fnArgs)
 				}
 
 				return NULL
 			},
 		},
 		"array_reduce": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
+			Fn: func(env *object.Environment, args ...object.Object) object.Object {
 				maxArgs := 4
 				minArgs := 3
 				hasThis := len(args) == maxArgs
@@ -270,14 +297,14 @@ func init() {
 						fnArgs = append(fnArgs, arr)
 					}
 
-					acc = applyFunction(args[2], fnArgs)
+					acc = applyFunction(env, args[2], fnArgs)
 				}
 
 				return acc
 			},
 		},
 		"array_copy": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
+			Fn: func(env *object.Environment, args ...object.Object) object.Object {
 				if len(args) != 1 {
 					return newError("wrong number of arguments. got=%d, want=1",
 						len(args))
@@ -403,7 +430,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return args[0]
 		}
 
-		return applyFunction(function, args)
+		return applyFunction(env, function, args)
 	case *ast.ArrayLiteral:
 		elements := evalExpressions(node.Elements, env)
 
@@ -466,7 +493,7 @@ func isTruthy(obj object.Object) bool {
 	}
 }
 
-func applyFunction(fn object.Object, args []object.Object) object.Object {
+func applyFunction(env *object.Environment, fn object.Object, args []object.Object) object.Object {
 	switch fn := fn.(type) {
 	case *object.Function:
 		argsLength := len(args)
@@ -488,7 +515,7 @@ func applyFunction(fn object.Object, args []object.Object) object.Object {
 
 		return unwrapReturnValue(evaluated)
 	case *object.Builtin:
-		return fn.Fn(args...)
+		return fn.Fn(env, args...)
 	default:
 		return newError("not a function: %s", fn.Type())
 	}
