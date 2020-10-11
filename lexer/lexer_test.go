@@ -6,7 +6,9 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	input := `let five = 5;
+	input := `
+	# this is a comment
+let five = 5;
 let ten = 10;
 let add = fn(x, y) {
 x + y;
@@ -26,6 +28,9 @@ return false;
 
 "foobar"
 "foo bar"
+"foo \"bar\""
+"foo \n bar"
+"foo \t bar"
 
 [1, 2];
 
@@ -35,6 +40,7 @@ return false;
 		expectedType    token.Type
 		expectedLiteral string
 	}{
+		{token.COMMENT, " this is a comment"},
 		{token.LET, "let"},
 		{token.IDENT, "five"},
 		{token.ASSIGN, "="},
@@ -110,6 +116,9 @@ return false;
 		{token.SEMICOLON, ";"},
 		{token.STRING, "foobar"},
 		{token.STRING, "foo bar"},
+		{token.STRING, "foo \"bar\""},
+		{token.STRING, "foo \n bar"},
+		{token.STRING, "foo \t bar"},
 		{token.LBRACKET, "["},
 		{token.INT, "1"},
 		{token.COMMA, ","},
