@@ -7,6 +7,8 @@ import (
 )
 
 func main() {
+	// Run the script file interpreter if a path is passed else REPL
+
 	if len(os.Args) > 1 {
 		script.Start(os.Stdout, os.Args[1:])
 	} else {
