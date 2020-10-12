@@ -10,6 +10,7 @@ import (
 	"monkey/object"
 	"monkey/parser"
 	"os"
+	"os/user"
 )
 
 // Builtin singletons
@@ -81,6 +82,84 @@ func init() {
 				os.Exit(int(code.Value))
 
 				return NULL
+			},
+		},
+		"sys_user": &object.Builtin{
+			Fn: func(args ...object.Object) object.Object {
+				user, err := user.Current()
+
+				if err != nil {
+					return newError("failed to get user: %s", err.Error())
+				}
+
+				return &object.String{Value: user.Username}
+			},
+		},
+		"sys_user_name": &object.Builtin{
+			Fn: func(args ...object.Object) object.Object {
+				user, err := user.Current()
+
+				if err != nil {
+					return newError("failed to get user name: %s", err.Error())
+				}
+
+				return &object.String{Value: user.Name}
+			},
+		},
+		"sys_user_gid": &object.Builtin{
+			Fn: func(args ...object.Object) object.Object {
+				user, err := user.Current()
+
+				if err != nil {
+					return newError("failed to get user GID: %s", err.Error())
+				}
+
+				return &object.String{Value: user.Gid}
+			},
+		},
+		"sys_user_uid": &object.Builtin{
+			Fn: func(args ...object.Object) object.Object {
+				user, err := user.Current()
+
+				if err != nil {
+					return newError("failed to get user UID: %s", err.Error())
+				}
+
+				return &object.String{Value: user.Uid}
+			},
+		},
+		"sys_user_home": &object.Builtin{
+			Fn: func(args ...object.Object) object.Object {
+				user, err := user.Current()
+
+				if err != nil {
+					return newError("failed to get user home: %s", err.Error())
+				}
+
+				return &object.String{Value: user.HomeDir}
+			},
+		},
+		"sys_user_groups": &object.Builtin{
+			Fn: func(args ...object.Object) object.Object {
+				user, err := user.Current()
+
+				if err != nil {
+					return newError("failed to get user: %s", err.Error())
+				}
+
+				groups, err := user.GroupIds()
+
+				if err != nil {
+					return newError("failed to get user groups: %s", err.Error())
+				}
+
+				var groupsArray []object.Object
+
+				for _, group := range groups {
+					groupsArray = append(groupsArray, &object.String{Value: group})
+				}
+
+				return &object.Array{Elements: groupsArray}
 			},
 		},
 		"require": &object.Builtin{
