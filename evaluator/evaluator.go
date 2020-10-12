@@ -298,6 +298,48 @@ func init() {
 				return NULL
 			},
 		},
+		"range": &object.Builtin{
+			Fn: func(args ...object.Object) object.Object {
+				if len(args) < 2 {
+					return newError("wrong number of arguments. got=%d, want=2",
+						len(args))
+				}
+
+				if args[0].Type() != object.INTEGER_OBJ {
+					return newError("first argument to `range` must be INTEGER, got %s",
+						args[0].Type())
+				}
+
+				if args[1].Type() != object.INTEGER_OBJ {
+					return newError("second argument to `range` must be INTEGER, got %s",
+						args[1].Type())
+				}
+
+				if len(args) == 3 && args[2].Type() != object.INTEGER_OBJ {
+					return newError("third argument to `range` must be INTEGER, got %s",
+						args[1].Type())
+				}
+
+				step := int64(1)
+				end := args[1].(*object.Integer)
+				start := args[0].(*object.Integer)
+
+				if len(args) == 3 {
+					s := args[2].(*object.Integer)
+					step = s.Value
+				}
+
+				i := start.Value
+				arr := []object.Object{}
+
+				for i < end.Value {
+					arr = append(arr, &object.Integer{Value: i})
+					i = i + step
+				}
+
+				return &object.Array{Elements: arr}
+			},
+		},
 		"array_first": &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {
 				if len(args) != 1 {
