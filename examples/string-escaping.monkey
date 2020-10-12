@@ -8,5 +8,7 @@ let e = "
 Hello World
 Once again!
 ";
+let f = 'Hello World';
+let g = 'Hello \'World\'';
 
-puts(a, "\n", b, "\n", c, "\n", d, "\n", e);
+puts(a, "\n", b, "\n", c, "\n", d, "\n", e, "\n", f, "\n", g);
