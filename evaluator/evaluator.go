@@ -726,6 +726,69 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 
 		return evalIndexExpression(left, index)
+	case *ast.AssignmentExpression:
+		left := Eval(node.Left, env)
+
+		if isError(left) {
+			return left
+		}
+
+		value := Eval(node.Value, env)
+
+		if isError(value) {
+			return value
+		}
+
+		if ident, ok := node.Left.(*ast.Identifier); ok {
+			env.Set(ident.Value, value)
+
+			return NULL
+		}
+
+		if ie, ok := node.Left.(*ast.IndexExpression); ok {
+			obj := Eval(ie.Left, env)
+
+			if isError(obj) {
+				return obj
+			}
+
+			if array, ok := obj.(*object.Array); ok {
+				index := Eval(ie.Index, env)
+
+				if isError(index) {
+					return index
+				}
+
+				if idx, ok := index.(*object.Integer); ok {
+					array.Elements[idx.Value] = value
+				} else {
+					return newError("cannot index array with %#v", index)
+				}
+
+				return NULL
+			}
+
+			if hash, ok := obj.(*object.Hash); ok {
+				key := Eval(ie.Index, env)
+
+				if isError(key) {
+					return key
+				}
+
+				if hashKey, ok := key.(object.Hashable); ok {
+					hashed := hashKey.HashKey()
+					hash.Pairs[hashed] = object.HashPair{Key: key, Value: value}
+
+					return NULL
+				}
+
+				return newError("cannot index hash with %T", key)
+			}
+
+			return newError("object type %T does not support item assignment", obj)
+		}
+
+		return newError("expected identifier or index expression got=%T", left)
 	}
 
 	return nil
