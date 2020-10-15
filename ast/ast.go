@@ -373,8 +373,12 @@ type IndexExpression struct {
 	Index Expression
 }
 
-func (ie *IndexExpression) expressionNode()      {}
-func (ie *IndexExpression) TokenLiteral() string { return ie.Token.Literal }
+func (ie *IndexExpression) expressionNode() {}
+
+func (ie *IndexExpression) TokenLiteral() string {
+	return ie.Token.Literal
+}
+
 func (ie *IndexExpression) String() string {
 	var out bytes.Buffer
 
@@ -392,8 +396,12 @@ type HashLiteral struct {
 	Pairs map[Expression]Expression
 }
 
-func (hl *HashLiteral) expressionNode()      {}
-func (hl *HashLiteral) TokenLiteral() string { return hl.Token.Literal }
+func (hl *HashLiteral) expressionNode() {}
+
+func (hl *HashLiteral) TokenLiteral() string {
+	return hl.Token.Literal
+}
+
 func (hl *HashLiteral) String() string {
 	var out bytes.Buffer
 	pairs := []string{}
@@ -409,7 +417,33 @@ func (hl *HashLiteral) String() string {
 	return out.String()
 }
 
-// Comment a comment
+// AssignmentExpression represents an assignment expression of the form:
+// x = 1 or xs[1] = 2
+type AssignmentExpression struct {
+	Token token.Token // The = token
+	Left  Expression
+	Value Expression
+}
+
+func (ae *AssignmentExpression) expressionNode() {}
+
+// TokenLiteral prints the literal value of the token associated with this node
+func (ae *AssignmentExpression) TokenLiteral() string {
+	return ae.Token.Literal
+}
+
+// String returns a stringified version of the AST for debugging
+func (ae *AssignmentExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(ae.Left.String())
+	out.WriteString(ae.TokenLiteral())
+	out.WriteString(ae.Value.String())
+
+	return out.String()
+}
+
+// Comment is a comment
 type Comment struct {
 	Token token.Token // the token.COMMENT token
 	Value string
