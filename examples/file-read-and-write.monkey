@@ -1,4 +1,4 @@
-let fileName = 'hello.txt';
+fileName = 'hello.txt';
 
 file_write(fileName, 'Hello World', 0644);
 

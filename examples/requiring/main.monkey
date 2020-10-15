@@ -1,4 +1,4 @@
-let hello = require("./hello.monkey")
+hello = require("./hello.monkey")
 
 hello.Print(4 + 4)
 

@@ -673,14 +673,6 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 
 		return &object.ReturnValue{Value: val}
-	case *ast.LetStatement:
-		val := Eval(node.Value, env)
-
-		if isError(val) {
-			return val
-		}
-
-		env.Set(node.Name.Value, val)
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
 	case *ast.FunctionLiteral:
@@ -727,12 +719,6 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 
 		return evalIndexExpression(left, index)
 	case *ast.AssignmentExpression:
-		left := Eval(node.Left, env)
-
-		if isError(left) {
-			return left
-		}
-
 		value := Eval(node.Value, env)
 
 		if isError(value) {
@@ -740,7 +726,11 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 
 		if ident, ok := node.Left.(*ast.Identifier); ok {
-			env.Set(ident.Value, value)
+			if immutable, ok := value.(object.Immutable); ok {
+				env.Set(ident.Value, immutable.Clone())
+			} else {
+				env.Set(ident.Value, value)
+			}
 
 			return NULL
 		}
@@ -785,7 +775,13 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 				return newError("cannot index hash with %T", key)
 			}
 
-			return newError("object type %T does not support item assignment", obj)
+			return newError("object type %s does not support item assignment", obj.Type())
+		}
+
+		left := Eval(node.Left, env)
+
+		if isError(left) {
+			return left
 		}
 
 		return newError("expected identifier or index expression got=%T", left)
@@ -878,6 +874,8 @@ func unwrapReturnValue(obj object.Object) object.Object {
 
 func evalIndexExpression(left, index object.Object) object.Object {
 	switch {
+	case left.Type() == object.STRING_OBJ && index.Type() == object.INTEGER_OBJ:
+		return evalStringIndexExpression(left, index)
 	case left.Type() == object.ARRAY_OBJ && index.Type() == object.INTEGER_OBJ:
 		return evalArrayIndexExpression(left, index)
 	case left.Type() == object.HASH_OBJ:
@@ -947,6 +945,18 @@ func evalHashIndexExpression(hash, index object.Object) object.Object {
 	}
 
 	return pair.Value
+}
+
+func evalStringIndexExpression(str, index object.Object) object.Object {
+	stringObject := str.(*object.String)
+	idx := index.(*object.Integer).Value
+	max := int64(len(stringObject.Value) - 1)
+
+	if idx < 0 || idx > max {
+		return &object.String{Value: ""}
+	}
+
+	return &object.String{Value: string(stringObject.Value[idx])}
 }
 
 func evalExpressions(

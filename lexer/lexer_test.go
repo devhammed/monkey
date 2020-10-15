@@ -8,12 +8,12 @@ import (
 func TestNextToken(t *testing.T) {
 	input := `
 	# this is a comment
-let five = 5;
-let ten = 10;
-let add = fn(x, y) {
+five = 5;
+ten = 10;
+add = fn(x, y) {
 x + y;
 };
-let result = add(five, ten);
+result = add(five, ten);
 !-/*5;
 5 < 10 > 5;
 
@@ -41,17 +41,14 @@ return false;
 		expectedLiteral string
 	}{
 		{token.COMMENT, " this is a comment"},
-		{token.LET, "let"},
 		{token.IDENT, "five"},
 		{token.ASSIGN, "="},
 		{token.INT, "5"},
 		{token.SEMICOLON, ";"},
-		{token.LET, "let"},
 		{token.IDENT, "ten"},
 		{token.ASSIGN, "="},
 		{token.INT, "10"},
 		{token.SEMICOLON, ";"},
-		{token.LET, "let"},
 		{token.IDENT, "add"},
 		{token.ASSIGN, "="},
 		{token.FUNCTION, "fn"},
@@ -67,7 +64,6 @@ return false;
 		{token.SEMICOLON, ";"},
 		{token.RBRACE, "}"},
 		{token.SEMICOLON, ";"},
-		{token.LET, "let"},
 		{token.IDENT, "result"},
 		{token.ASSIGN, "="},
 		{token.IDENT, "add"},

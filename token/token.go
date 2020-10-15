@@ -64,9 +64,6 @@ const (
 	// FUNCTION is a function token
 	FUNCTION = "FUNCTION"
 
-	// LET is a let token
-	LET = "LET"
-
 	// TRUE is a truthy boolean token
 	TRUE = "TRUE"
 
@@ -116,7 +113,6 @@ type Token struct {
 // keywords map are the supported language keywords
 var keywords = map[string]Type{
 	"fn":     FUNCTION,
-	"let":    LET,
 	"true":   TRUE,
 	"false":  FALSE,
 	"null":   NULL,

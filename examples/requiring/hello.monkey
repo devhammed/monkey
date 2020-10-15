@@ -8,10 +8,10 @@ if (!MAIN) {
   puts(FILE + " is executed directly")
 }
 
-let hi = "hi world";
+hi = "hi world";
 
-let Hello = "Hello World";
+Hello = "Hello World";
 
-let Print = fn(x) {
+Print = fn(x) {
   puts(x);
 };
