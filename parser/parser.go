@@ -12,16 +12,18 @@ import (
 const (
 	_           int = iota
 	LOWEST          // LOWEST
+	ASSIGN          // =
 	EQUALS          // ==
 	LESSGREATER     // > or <
 	SUM             // +
 	PRODUCT         // *
 	PREFIX          // -X or !X
 	CALL            // myFunction(X)
-	INDEX
+	INDEX           // INDEX
 )
 
 var precedences = map[token.Type]int{
+	token.ASSIGN:   ASSIGN,
 	token.EQ:       EQUALS,
 	token.NOTEQ:    EQUALS,
 	token.LT:       LESSGREATER,
@@ -86,6 +88,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.LPAREN, p.parseCallExpression)
 	p.registerInfix(token.LBRACKET, p.parseIndexExpression)
 	p.registerInfix(token.DOT, p.parseSelectorExpression)
+	// p.registerInfix(token.ASSIGN, p.parseAssignmentExpression)
 
 	// Read two tokens, so curToken and peekToken are both set
 	p.nextToken()
@@ -236,6 +239,20 @@ func (p *Parser) parseIfExpression() ast.Expression {
 
 	if p.peekTokenIs(token.ELSE) {
 		p.nextToken()
+
+		if p.peekTokenIs(token.IF) {
+			p.nextToken()
+
+			expression.Alternative = &ast.BlockStatement{
+				Statements: []ast.Statement{
+					&ast.ExpressionStatement{
+						Expression: p.parseIfExpression(),
+					},
+				},
+			}
+
+			return expression
+		}
 
 		if !p.expectPeek(token.LBRACE) {
 			return nil
