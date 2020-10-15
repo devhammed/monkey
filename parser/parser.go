@@ -88,7 +88,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.LPAREN, p.parseCallExpression)
 	p.registerInfix(token.LBRACKET, p.parseIndexExpression)
 	p.registerInfix(token.DOT, p.parseSelectorExpression)
-	// p.registerInfix(token.ASSIGN, p.parseAssignmentExpression)
+	p.registerInfix(token.ASSIGN, p.parseAssignmentExpression)
 
 	// Read two tokens, so curToken and peekToken are both set
 	p.nextToken()
@@ -369,6 +369,26 @@ func (p *Parser) parseExpressionList(end token.Type) []ast.Expression {
 
 	return list
 }
+
+func (p *Parser) parseAssignmentExpression(exp ast.Expression) ast.Expression {
+	switch node := exp.(type) {
+	case *ast.Identifier, *ast.IndexExpression:
+	default:
+		msg := fmt.Sprintf("expected identifier or index expression on left but got %T %#v", node, exp)
+		p.errors = append(p.errors, msg)
+
+		return nil
+	}
+
+	ae := &ast.AssignmentExpression{Token: p.curToken, Left: exp}
+
+	p.nextToken()
+
+	ae.Value = p.parseExpression(LOWEST)
+
+	return ae
+}
+
 func (p *Parser) parseFunctionParameters() []*ast.Identifier {
 	identifiers := []*ast.Identifier{}
 
