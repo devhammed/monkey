@@ -18,7 +18,7 @@ var (
 	NULL           = &object.Null{}
 	TRUE           = &object.Boolean{Value: true}
 	FALSE          = &object.Boolean{Value: false}
-	MONKEY_VERSION = &object.String{Value: "v0.2.5"}
+	MONKEY_VERSION = &object.String{Value: "v0.2.6"}
 )
 
 // the "init" function is necessary to prevent initialization loop error.
