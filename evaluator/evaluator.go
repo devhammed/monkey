@@ -9,6 +9,7 @@ import (
 	"monkey/lexer"
 	"monkey/object"
 	"monkey/parser"
+	"monkey/typing"
 	"os"
 	"os/user"
 )
@@ -30,9 +31,12 @@ func init() {
 	builtins = map[string]*object.Builtin{
 		"len": &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {
-				if len(args) != 1 {
-					return newError("wrong number of arguments. got=%d, want=1",
-						len(args))
+				if err := typing.Check(
+					"len",
+					args,
+					typing.ExactArgs(1),
+				); err != nil {
+					return newError(err.Error())
 				}
 
 				switch arg := args[0].(type) {
@@ -48,9 +52,12 @@ func init() {
 		},
 		"type": &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {
-				if len(args) != 1 {
-					return newError("wrong number of arguments. got=%d, want=1",
-						len(args))
+				if err := typing.Check(
+					"type",
+					args,
+					typing.ExactArgs(1),
+				); err != nil {
+					return newError(err.Error())
 				}
 
 				return &object.String{Value: string(args[0].Type())}
@@ -58,6 +65,14 @@ func init() {
 		},
 		"puts": &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {
+				if err := typing.Check(
+					"puts",
+					args,
+					typing.MinimumArgs(1),
+				); err != nil {
+					return newError(err.Error())
+				}
+
 				for _, arg := range args {
 					fmt.Println(arg.Inspect())
 				}
@@ -67,14 +82,13 @@ func init() {
 		},
 		"sys_exit": &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {
-				if len(args) != 1 {
-					return newError("wrong number of arguments. got=%d, want=1",
-						len(args))
-				}
-
-				if args[0].Type() != object.INTEGER_OBJ {
-					return newError("argument to `sys_exit` must be INTEGER, got %s",
-						args[0].Type())
+				if err := typing.Check(
+					"sys_exit",
+					args,
+					typing.ExactArgs(1),
+					typing.WithTypes(object.INTEGER_OBJ),
+				); err != nil {
+					return newError(err.Error())
 				}
 
 				code := args[0].(*object.Integer)
@@ -164,14 +178,13 @@ func init() {
 		},
 		"require": &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {
-				if len(args) != 1 {
-					return newError("wrong number of arguments. got=%d, want=1",
-						len(args))
-				}
-
-				if args[0].Type() != object.STRING_OBJ {
-					return newError("argument to `require` must be STRING, got %s",
-						args[0].Type())
+				if err := typing.Check(
+					"require",
+					args,
+					typing.ExactArgs(1),
+					typing.WithTypes(object.STRING_OBJ),
+				); err != nil {
+					return newError(err.Error())
 				}
 
 				file := args[0].Inspect()
@@ -196,16 +209,44 @@ func init() {
 				return env.ExportedHash()
 			},
 		},
-		"file_read": &object.Builtin{
+		"input": &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {
-				if len(args) != 1 {
-					return newError("wrong number of arguments. got=%d, want=1",
-						len(args))
+				if err := typing.Check(
+					"input",
+					args,
+					typing.RangeOfArgs(0, 1),
+					typing.WithTypes(object.STRING_OBJ),
+				); err != nil {
+					return newError(err.Error())
 				}
 
-				if args[0].Type() != object.STRING_OBJ {
-					return newError("argument to `file_read` must be STRING, got %s",
-						args[0].Type())
+				if len(args) == 1 {
+					prompt := args[0].(*object.String).Value
+
+					fmt.Fprintf(os.Stdout, prompt)
+				}
+
+				buffer := bufio.NewReader(os.Stdin)
+
+				line, _, err := buffer.ReadLine()
+
+				if err != nil && err != io.EOF {
+					return newError("error reading input from stdin: %s", err)
+				}
+
+				return &object.String{Value: string(line)}
+
+			},
+		},
+		"file_read": &object.Builtin{
+			Fn: func(args ...object.Object) object.Object {
+				if err := typing.Check(
+					"file_read",
+					args,
+					typing.ExactArgs(1),
+					typing.WithTypes(object.STRING_OBJ),
+				); err != nil {
+					return newError(err.Error())
 				}
 
 				fileName := args[0].Inspect()
@@ -221,14 +262,13 @@ func init() {
 		},
 		"file_readlines": &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {
-				if len(args) != 1 {
-					return newError("wrong number of arguments. got=%d, want=1",
-						len(args))
-				}
-
-				if args[0].Type() != object.STRING_OBJ {
-					return newError("argument to `file_read` must be STRING, got %s",
-						args[0].Type())
+				if err := typing.Check(
+					"file_readlines",
+					args,
+					typing.ExactArgs(1),
+					typing.WithTypes(object.STRING_OBJ),
+				); err != nil {
+					return newError(err.Error())
 				}
 
 				fileName := args[0].Inspect()
@@ -262,24 +302,13 @@ func init() {
 		},
 		"file_write": &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {
-				if len(args) != 3 {
-					return newError("wrong number of arguments. got=%d, want=3",
-						len(args))
-				}
-
-				if args[0].Type() != object.STRING_OBJ {
-					return newError("first argument to `file_write` must be STRING, got %s",
-						args[0].Type())
-				}
-
-				if args[1].Type() != object.STRING_OBJ {
-					return newError("second argument to `file_write` must be STRING, got %s",
-						args[1].Type())
-				}
-
-				if args[2].Type() != object.INTEGER_OBJ {
-					return newError("third argument to `file_write` must be INTEGER, got %s",
-						args[2].Type())
+				if err := typing.Check(
+					"file_write",
+					args,
+					typing.ExactArgs(3),
+					typing.WithTypes(object.STRING_OBJ, object.STRING_OBJ, object.INTEGER_OBJ),
+				); err != nil {
+					return newError(err.Error())
 				}
 
 				fileName := args[0].Inspect()
@@ -300,24 +329,13 @@ func init() {
 		},
 		"range": &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {
-				if len(args) < 2 {
-					return newError("wrong number of arguments. got=%d, want=2",
-						len(args))
-				}
-
-				if args[0].Type() != object.INTEGER_OBJ {
-					return newError("first argument to `range` must be INTEGER, got %s",
-						args[0].Type())
-				}
-
-				if args[1].Type() != object.INTEGER_OBJ {
-					return newError("second argument to `range` must be INTEGER, got %s",
-						args[1].Type())
-				}
-
-				if len(args) == 3 && args[2].Type() != object.INTEGER_OBJ {
-					return newError("third argument to `range` must be INTEGER, got %s",
-						args[1].Type())
+				if err := typing.Check(
+					"range",
+					args,
+					typing.RangeOfArgs(2, 3),
+					typing.AllOfType(object.INTEGER_OBJ),
+				); err != nil {
+					return newError(err.Error())
 				}
 
 				step := int64(1)
@@ -342,14 +360,13 @@ func init() {
 		},
 		"array_first": &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {
-				if len(args) != 1 {
-					return newError("wrong number of arguments. got=%d, want=1",
-						len(args))
-				}
-
-				if args[0].Type() != object.ARRAY_OBJ {
-					return newError("argument to `array_first` must be ARRAY, got %s",
-						args[0].Type())
+				if err := typing.Check(
+					"array_first",
+					args,
+					typing.ExactArgs(1),
+					typing.WithTypes(object.ARRAY_OBJ),
+				); err != nil {
+					return newError(err.Error())
 				}
 
 				arr := args[0].(*object.Array)
@@ -363,14 +380,13 @@ func init() {
 		},
 		"array_last": &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {
-				if len(args) != 1 {
-					return newError("wrong number of arguments. got=%d, want=1",
-						len(args))
-				}
-
-				if args[0].Type() != object.ARRAY_OBJ {
-					return newError("argument to `array_last` must be ARRAY, got %s",
-						args[0].Type())
+				if err := typing.Check(
+					"array_last",
+					args,
+					typing.ExactArgs(1),
+					typing.WithTypes(object.ARRAY_OBJ),
+				); err != nil {
+					return newError(err.Error())
 				}
 
 				arr := args[0].(*object.Array)
@@ -385,14 +401,13 @@ func init() {
 		},
 		"array_rest": &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {
-				if len(args) != 1 {
-					return newError("wrong number of arguments. got=%d, want=1",
-						len(args))
-				}
-
-				if args[0].Type() != object.ARRAY_OBJ {
-					return newError("argument to `array_rest` must be ARRAY, got %s",
-						args[0].Type())
+				if err := typing.Check(
+					"array_rest",
+					args,
+					typing.ExactArgs(1),
+					typing.WithTypes(object.ARRAY_OBJ),
+				); err != nil {
+					return newError(err.Error())
 				}
 
 				arr := args[0].(*object.Array)
@@ -410,14 +425,13 @@ func init() {
 		},
 		"array_push": &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {
-				if len(args) != 2 {
-					return newError("wrong number of arguments. got=%d, want=2",
-						len(args))
-				}
-
-				if args[0].Type() != object.ARRAY_OBJ {
-					return newError("argument to `array_push` must be ARRAY, got %s",
-						args[0].Type())
+				if err := typing.Check(
+					"array_push",
+					args,
+					typing.ExactArgs(2),
+					typing.WithTypes(object.ARRAY_OBJ),
+				); err != nil {
+					return newError(err.Error())
 				}
 
 				arr := args[0].(*object.Array)
