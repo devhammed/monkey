@@ -18,18 +18,18 @@ func Start(in io.Reader, out io.Writer) {
 	}
 
 	fmt.FPrintf(
-	out,
+		out,
 		"Hello %s! This is the Monkey programming language!\n",
 		user.Username,
 	)
 
-	fmt.Printf("Feel free to type in commands.\n")
+	fmt.FPrintf(out, "Feel free to type in commands.\n")
 
 	env := object.NewEnvironment()
 	scanner := bufio.NewScanner(in)
 
 	for {
-		fmt.Printf(">> ")
+		fmt.FPrintf(out, ">> ")
 
 		scanned := scanner.Scan()
 
