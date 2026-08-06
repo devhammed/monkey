@@ -24,7 +24,7 @@ func Start(in io.Reader, out io.Writer) {
 
 	fmt.Printf("Feel free to type in commands.\n")
 
- env := object.NewEnvironment()
+	env := object.NewEnvironment()
 	scanner := bufio.NewScanner(in)
 
 	for {
