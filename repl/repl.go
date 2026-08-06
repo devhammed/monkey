@@ -17,7 +17,8 @@ func Start(in io.Reader, out io.Writer) {
 		panic(err)
 	}
 
-	fmt.Printf(
+	fmt.FPrintf(
+	out,
 		"Hello %s! This is the Monkey programming language!\n",
 		user.Username,
 	)
