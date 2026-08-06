@@ -9,14 +9,9 @@ import (
 	"os/user"
 )
 
-// PROMPT is the repl input prompt
-const PROMPT = ">> "
-
 // Start is the repl loop function
 func Start(in io.Reader, out io.Writer) {
 	user, err := user.Current()
-	env := object.NewEnvironment()
-	scanner := bufio.NewScanner(in)
 
 	if err != nil {
 		panic(err)
@@ -29,8 +24,11 @@ func Start(in io.Reader, out io.Writer) {
 
 	fmt.Printf("Feel free to type in commands.\n")
 
+ env := object.NewEnvironment()
+	scanner := bufio.NewScanner(in)
+
 	for {
-		fmt.Printf(PROMPT)
+		fmt.Printf(">> ")
 
 		scanned := scanner.Scan()
 
