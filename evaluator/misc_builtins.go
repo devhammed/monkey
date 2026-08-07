@@ -1,14 +1,14 @@
 package evaluator
 
 import (
-	"io/ioutil"
 	"monkey/object"
 	"monkey/typing"
+	"os"
 )
 
 func init() {
 	builtins["require"] = &object.Builtin{
-		Fn: func(args ...object.Object) object.Object {
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
 			if err := typing.Check(
 				"require",
 				args,
@@ -19,15 +19,15 @@ func init() {
 			}
 
 			file := args[0].Inspect()
-			data, err := ioutil.ReadFile(file)
+			data, err := os.ReadFile(file)
 
 			if err != nil {
 				return newError("failed to require file: %s", err.Error())
 			}
 
-			env := object.NewEnvironment()
+			moduleEnv := object.NewEnvironment()
 
-			evaluated := Run(string(data), file, FALSE, env)
+			evaluated := Run(string(data), file, FALSE, moduleEnv)
 
 			if evaluated != nil && evaluated.Type() == object.ERROR_OBJ {
 				return newError(
@@ -42,7 +42,7 @@ func init() {
 	}
 
 	builtins["len"] = &object.Builtin{
-		Fn: func(args ...object.Object) object.Object {
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
 			if err := typing.Check(
 				"len",
 				args,
@@ -64,7 +64,7 @@ func init() {
 	}
 
 	builtins["type"] = &object.Builtin{
-		Fn: func(args ...object.Object) object.Object {
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
 			if err := typing.Check(
 				"type",
 				args,

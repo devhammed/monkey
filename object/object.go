@@ -10,6 +10,7 @@ const (
 	FUNCTION_OBJ     = "FUNCTION"
 	STRING_OBJ       = "STRING"
 	BUILTIN_OBJ      = "BUILTIN"
+	RESOURCE_OBJ     = "RESOURCE"
 	ARRAY_OBJ        = "ARRAY"
 	HASH_OBJ         = "HASH"
 )

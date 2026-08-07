@@ -7,7 +7,7 @@ import (
 
 func init() {
 	builtins["range"] = &object.Builtin{
-		Fn: func(args ...object.Object) object.Object {
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
 			if err := typing.Check(
 				"range",
 				args,
@@ -39,7 +39,7 @@ func init() {
 	}
 
 	builtins["array_first"] = &object.Builtin{
-		Fn: func(args ...object.Object) object.Object {
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
 			if err := typing.Check("array_first", args, typing.ExactArgs(1), typing.WithTypes(object.ARRAY_OBJ)); err != nil {
 				return newError(err.Error())
 			}
@@ -53,7 +53,7 @@ func init() {
 	}
 
 	builtins["array_last"] = &object.Builtin{
-		Fn: func(args ...object.Object) object.Object {
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
 			if err := typing.Check("array_last", args, typing.ExactArgs(1), typing.WithTypes(object.ARRAY_OBJ)); err != nil {
 				return newError(err.Error())
 			}
@@ -67,7 +67,7 @@ func init() {
 	}
 
 	builtins["array_rest"] = &object.Builtin{
-		Fn: func(args ...object.Object) object.Object {
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
 			if err := typing.Check("array_rest", args, typing.ExactArgs(1), typing.WithTypes(object.ARRAY_OBJ)); err != nil {
 				return newError(err.Error())
 			}
@@ -83,7 +83,7 @@ func init() {
 	}
 
 	builtins["array_push"] = &object.Builtin{
-		Fn: func(args ...object.Object) object.Object {
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
 			if err := typing.Check("array_push", args, typing.ExactArgs(2), typing.WithTypes(object.ARRAY_OBJ)); err != nil {
 				return newError(err.Error())
 			}
@@ -98,7 +98,7 @@ func init() {
 	}
 
 	builtins["array_map"] = &object.Builtin{
-		Fn: func(args ...object.Object) object.Object {
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
 			if err := typing.Check("array_map", args, typing.ExactArgs(2), typing.WithTypes(object.ARRAY_OBJ)); err != nil {
 				return newError(err.Error())
 			}
@@ -109,14 +109,14 @@ func init() {
 			arr := args[0].(*object.Array)
 			elements := make([]object.Object, len(arr.Elements))
 			for i, element := range arr.Elements {
-				elements[i] = applyFunction(args[1], []object.Object{element, &object.Integer{Value: int64(i)}})
+				elements[i] = applyFunction(args[1], []object.Object{element, &object.Integer{Value: int64(i)}}, env)
 			}
 			return &object.Array{Elements: elements}
 		},
 	}
 
 	builtins["array_each"] = &object.Builtin{
-		Fn: func(args ...object.Object) object.Object {
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
 			if err := typing.Check("array_each", args, typing.ExactArgs(2), typing.WithTypes(object.ARRAY_OBJ)); err != nil {
 				return newError(err.Error())
 			}
@@ -125,14 +125,14 @@ func init() {
 			}
 
 			for i, element := range args[0].(*object.Array).Elements {
-				applyFunction(args[1], []object.Object{element, &object.Integer{Value: int64(i)}})
+				applyFunction(args[1], []object.Object{element, &object.Integer{Value: int64(i)}}, env)
 			}
 			return NULL
 		},
 	}
 
 	builtins["array_reduce"] = &object.Builtin{
-		Fn: func(args ...object.Object) object.Object {
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
 			if err := typing.Check(
 				"array_reduce",
 				args,
@@ -154,7 +154,7 @@ func init() {
 			for i := 0; i < len(elements); i++ {
 				fnArgs := []object.Object{acc, elements[i], &object.Integer{Value: int64(i)}}
 
-				acc = applyFunction(acc, fnArgs)
+				acc = applyFunction(acc, fnArgs, env)
 			}
 
 			return acc
@@ -162,7 +162,7 @@ func init() {
 	}
 
 	builtins["array_copy"] = &object.Builtin{
-		Fn: func(args ...object.Object) object.Object {
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
 			if err := typing.Check("array_copy", args, typing.ExactArgs(1), typing.WithTypes(object.ARRAY_OBJ)); err != nil {
 				return newError(err.Error())
 			}

@@ -132,7 +132,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return args[0]
 		}
 
-		return applyFunction(function, args)
+		return applyFunction(function, args, env)
 	case *ast.ArrayLiteral:
 		elements := evalExpressions(node.Elements, env)
 
@@ -266,7 +266,7 @@ func isTruthy(obj object.Object) bool {
 	}
 }
 
-func applyFunction(fn object.Object, args []object.Object) object.Object {
+func applyFunction(fn object.Object, args []object.Object, env *object.Environment) object.Object {
 	switch fn := fn.(type) {
 	case *object.Function:
 		argsLength := len(args)
@@ -288,7 +288,7 @@ func applyFunction(fn object.Object, args []object.Object) object.Object {
 
 		return unwrapReturnValue(evaluated)
 	case *object.Builtin:
-		return fn.Fn(args...)
+		return fn.Fn(env, args...)
 	default:
 		return newError("not a function: %s", fn.Type())
 	}

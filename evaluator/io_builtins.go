@@ -8,7 +8,7 @@ import (
 
 func init() {
 	builtins["puts"] = &object.Builtin{
-		Fn: func(args ...object.Object) object.Object {
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
 			if err := typing.Check(
 				"puts",
 				args,
