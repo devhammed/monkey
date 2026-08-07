@@ -25,7 +25,7 @@ func init() {
 				return newError("failed to require file: %s", err.Error())
 			}
 
-			moduleEnv := object.NewEnvironment()
+			moduleEnv := object.NewModuleEnvironment(env)
 
 			evaluated := Run(string(data), file, FALSE, moduleEnv)
 

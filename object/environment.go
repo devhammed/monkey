@@ -34,6 +34,21 @@ func NewEnclosedEnvironment(outer *Environment) *Environment {
 	return env
 }
 
+// NewModuleEnvironment creates a new environment containing only superglobal bindings from the provided parent environment.
+func NewModuleEnvironment(parent *Environment) *Environment {
+	env := NewEnvironment()
+
+	for current := parent; current != nil; current = current.outer {
+		for name, binding := range current.store {
+			if binding.SuperGlobal {
+				env.Set(name, binding.Value, binding.BindingOptions)
+			}
+		}
+	}
+
+	return env
+}
+
 // ExportedHash returns a new Hash with the names and values of every publically
 // exported binding in the environment. That is every binding that starts with a
 // capital letter. This is used by the module import system to wrap up the
