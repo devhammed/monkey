@@ -417,12 +417,12 @@ false: 6
 	}
 
 	expected := map[object.HashKey]int64{
-		(&object.String{Value: "one"}).HashKey():   1,
-		(&object.String{Value: "two"}).HashKey():   2,
-		(&object.String{Value: "three"}).HashKey(): 3,
-		(&object.Integer{Value: 4}).HashKey():      4,
-		TRUE.HashKey():                             5,
-		FALSE.HashKey():                            6,
+		testHashKey(t, &object.String{Value: "one"}):   1,
+		testHashKey(t, &object.String{Value: "two"}):   2,
+		testHashKey(t, &object.String{Value: "three"}): 3,
+		testHashKey(t, &object.Integer{Value: 4}):      4,
+		testHashKey(t, TRUE):                           5,
+		testHashKey(t, FALSE):                          6,
 	}
 
 	if len(result.Pairs) != len(expected) {
@@ -540,4 +540,15 @@ func testIntegerObject(t *testing.T, obj object.Object, expected int64) bool {
 	}
 
 	return true
+}
+
+func testHashKey(t *testing.T, obj object.Hashable) object.HashKey {
+	t.Helper()
+
+	key, err := obj.HashKey()
+	if err != nil {
+		t.Fatalf("HashKey() returned error: %v", err)
+	}
+
+	return key
 }
