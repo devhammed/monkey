@@ -73,7 +73,7 @@ func Run(
 	}
 
 	env.Set("MAIN", nativeBoolToBooleanObject(isMain), object.BindingOptions{SuperGlobal: true})
-	env.Set("MONKEY_VERSION", MONKEY_VERSION, object.BindingOptions{SuperGlobal: true})
+	env.Set("VERSION", MONKEY_VERSION, object.BindingOptions{SuperGlobal: true})
 	env.Set("FILE", &object.String{Value: file}, object.BindingOptions{SuperGlobal: true})
 	env.Set("DIR", &object.String{Value: dir}, object.BindingOptions{SuperGlobal: true})
 
