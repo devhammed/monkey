@@ -9,7 +9,7 @@ import (
 
 // Start runs the script file passed
 func Start() {
-	file := os.Args[2]
+	file := os.Args[1]
 	data, err := os.ReadFile(file)
 
 	if err != nil {
