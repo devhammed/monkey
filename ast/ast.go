@@ -262,8 +262,7 @@ func (fl *FunctionLiteral) TokenLiteral() string {
 
 func (fl *FunctionLiteral) String() string {
 	var out bytes.Buffer
-
-	params := []string{}
+	var params []string
 
 	for _, p := range fl.Parameters {
 		params = append(params, p.String())
@@ -292,8 +291,7 @@ func (ce *CallExpression) TokenLiteral() string {
 
 func (ce *CallExpression) String() string {
 	var out bytes.Buffer
-
-	args := []string{}
+	var args []string
 
 	for _, a := range ce.Arguments {
 		args = append(args, a.String())
@@ -325,8 +323,7 @@ func (al *ArrayLiteral) expressionNode()      {}
 func (al *ArrayLiteral) TokenLiteral() string { return al.Token.Literal }
 func (al *ArrayLiteral) String() string {
 	var out bytes.Buffer
-
-	elements := []string{}
+	var elements []string
 
 	for _, el := range al.Elements {
 		elements = append(elements, el.String())
@@ -376,7 +373,7 @@ func (hl *HashLiteral) TokenLiteral() string {
 
 func (hl *HashLiteral) String() string {
 	var out bytes.Buffer
-	pairs := []string{}
+	var pairs []string
 
 	for key, value := range hl.Pairs {
 		pairs = append(pairs, key.String()+":"+value.String())
