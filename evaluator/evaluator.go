@@ -370,9 +370,9 @@ func evalHashLiteral(
 func evalArrayIndexExpression(array, index object.Object) object.Object {
 	arrayObject := array.(*object.Array)
 	idx := index.(*object.Integer).Value
-	max := int64(len(arrayObject.Elements) - 1)
+	maxIndex := int64(len(arrayObject.Elements) - 1)
 
-	if idx < 0 || idx > max {
+	if idx < 0 || idx > maxIndex {
 		return NULL
 	}
 
@@ -404,9 +404,9 @@ func evalHashIndexExpression(hash, index object.Object) object.Object {
 func evalStringIndexExpression(str, index object.Object) object.Object {
 	stringObject := str.(*object.String)
 	idx := index.(*object.Integer).Value
-	max := int64(len(stringObject.Value) - 1)
+	maxIndex := int64(len(stringObject.Value) - 1)
 
-	if idx < 0 || idx > max {
+	if idx < 0 || idx > maxIndex {
 		return &object.String{Value: ""}
 	}
 
@@ -458,9 +458,9 @@ func evalIfExpression(ie *ast.IfExpression, env *object.Environment) object.Obje
 		return Eval(ie.Consequence, env)
 	} else if ie.Alternative != nil {
 		return Eval(ie.Alternative, env)
-	} else {
-		return NULL
 	}
+
+	return NULL
 }
 
 func evalPrefixExpression(operator string, right object.Object) object.Object {
