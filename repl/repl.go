@@ -3,33 +3,32 @@ package repl
 import (
 	"bufio"
 	"fmt"
-	"io"
 	"monkey/evaluator"
 	"monkey/object"
+	"os"
 	"os/user"
 )
 
 // Start is the repl loop function
-func Start(in io.Reader, out io.Writer) {
-	user, err := user.Current()
+func Start() {
+	currentUser, err := user.Current()
 
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.FPrintf(
-		out,
+	fmt.Printf(
 		"Hello %s! This is the Monkey programming language!\n",
-		user.Username,
+		currentUser.Username,
 	)
 
-	fmt.FPrintf(out, "Feel free to type in commands.\n")
+	fmt.Println("Feel free to type in commands.")
 
 	env := object.NewEnvironment()
-	scanner := bufio.NewScanner(in)
+	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
-		fmt.FPrintf(out, ">> ")
+		fmt.Print(">> ")
 
 		scanned := scanner.Scan()
 
@@ -39,11 +38,10 @@ func Start(in io.Reader, out io.Writer) {
 
 		line := scanner.Text()
 
-		evaluated := evaluator.Run(line, "__REPL__", evaluator.TRUE, env, out)
+		evaluated := evaluator.Run(line, "__REPL__", evaluator.TRUE, env)
 
 		if evaluated != nil {
-			io.WriteString(out, evaluated.Inspect())
-			io.WriteString(out, "\n")
+			fmt.Println(evaluated.Inspect())
 		}
 	}
 }

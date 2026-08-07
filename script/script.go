@@ -2,17 +2,16 @@ package script
 
 import (
 	"fmt"
-	"io"
-	"io/ioutil"
 	"monkey/evaluator"
 	"monkey/object"
 	"os"
 )
 
 // Start runs the script file passed
-func Start(out io.Writer, args []string) {
+func Start() {
+	args := os.Args[1:]
 	file := args[0]
-	data, err := ioutil.ReadFile(file)
+	data, err := os.ReadFile(file)
 
 	if err != nil {
 		fmt.Println("File reading error", err)
@@ -30,11 +29,10 @@ func Start(out io.Writer, args []string) {
 
 	env.Set("ARGV", &object.Array{Elements: scriptArgs})
 
-	evaluated := evaluator.Run(string(data), file, evaluator.TRUE, env, out)
+	evaluated := evaluator.Run(string(data), file, evaluator.TRUE, env)
 
 	if evaluated != nil && evaluated.Type() == object.ERROR_OBJ {
-		io.WriteString(out, evaluated.Inspect())
-		io.WriteString(out, "\n")
+		fmt.Println(evaluated.Inspect())
 		os.Exit(1)
 	}
 }
