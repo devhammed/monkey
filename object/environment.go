@@ -35,7 +35,7 @@ func NewEnclosedEnvironment(outer *Environment) *Environment {
 	return env
 }
 
-// NewModuleEnvironment creates a new environment containing only superglobal bindings from the provided parent environment.
+// NewModuleEnvironment creates a new environment for a required module file
 func NewModuleEnvironment(parent *Environment) *Environment {
 	env := NewEnvironment()
 
