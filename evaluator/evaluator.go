@@ -41,15 +41,29 @@ func Run(
 		return nil
 	}
 
-	args := os.Args[1:]
+	if _, ok := env.Get("ARGV"); !ok {
+		args := os.Args[1:]
 
-	var scriptArgs []object.Object
+		var scriptArgs []object.Object
 
-	for _, scriptArg := range args {
-		scriptArgs = append(scriptArgs, &object.String{Value: scriptArg})
+		for _, scriptArg := range args {
+			scriptArgs = append(scriptArgs, &object.String{Value: scriptArg})
+		}
+
+		env.Set("ARGV", &object.Array{Elements: scriptArgs}, object.BindingOptions{SuperGlobal: true})
 	}
-
-	env.Set("ARGV", &object.Array{Elements: scriptArgs}, object.BindingOptions{SuperGlobal: true})
+	if _, ok := env.Get("STDIN"); !ok {
+		env.Set("STDIN", &object.Resource{
+			Name:   "STDIN",
+			Handle: os.Stdin,
+		}, object.BindingOptions{SuperGlobal: true})
+	}
+	if _, ok := env.Get("STDOUT"); !ok {
+		env.Set("STDOUT", &object.Resource{
+			Name:   "STDOUT",
+			Handle: os.Stdout,
+		}, object.BindingOptions{SuperGlobal: true})
+	}
 	env.Set("MAIN", isMain, object.BindingOptions{SuperGlobal: true})
 	env.Set("MONKEY_VERSION", MONKEY_VERSION, object.BindingOptions{SuperGlobal: true})
 	env.Set("FILE", &object.String{Value: file}, object.BindingOptions{SuperGlobal: true})
