@@ -230,7 +230,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	return nil
 }
 
-func newError(format string, a ...interface{}) *object.Error {
+func newError(format string, a ...any) *object.Error {
 	return &object.Error{Message: fmt.Sprintf(format, a...)}
 }
 
