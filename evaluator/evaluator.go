@@ -70,6 +70,7 @@ func Run(
 			Handle: os.Stderr,
 		}, object.BindingOptions{SuperGlobal: true})
 	}
+
 	env.Set("MAIN", isMain, object.BindingOptions{SuperGlobal: true})
 	env.Set("MONKEY_VERSION", MONKEY_VERSION, object.BindingOptions{SuperGlobal: true})
 	env.Set("FILE", &object.String{Value: file}, object.BindingOptions{SuperGlobal: true})
