@@ -42,7 +42,7 @@ func (e *Environment) ExportedHash() *Hash {
 	pairs := make(map[HashKey]HashPair)
 
 	for k, v := range e.store {
-		if unicode.IsUpper(rune(k[0])) {
+		if unicode.IsUpper(rune(k[0])) && !v.SuperGlobal {
 			s := &String{Value: k}
 
 			hashKey, err := s.HashKey()
