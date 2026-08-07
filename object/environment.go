@@ -12,6 +12,7 @@ type Binding struct {
 type BindingOptions struct {
 	SuperGlobal bool
 	Exported    bool
+	ExportName  string
 }
 
 // Environment is an object that holds a mapping of names to bound objets
