@@ -37,7 +37,7 @@ func init() {
 				)
 			}
 
-			return env.ExportedHash()
+			return moduleEnv.ExportedHash()
 		},
 	}
 
