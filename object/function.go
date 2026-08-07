@@ -30,8 +30,7 @@ func (f *Function) Type() Type {
 
 func (f *Function) Inspect() string {
 	var out bytes.Buffer
-
-	params := []string{}
+	var params []string
 
 	for _, p := range f.Parameters {
 		params = append(params, p.String())

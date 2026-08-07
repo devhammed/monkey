@@ -19,9 +19,12 @@ func (s *String) Clone() Object {
 	return &String{Value: s.Value}
 }
 
-func (s *String) HashKey() HashKey {
+func (s *String) HashKey() (HashKey, error) {
 	h := fnv.New64a()
-	h.Write([]byte(s.Value))
+	_, err := h.Write([]byte(s.Value))
+	if err != nil {
+		return HashKey{}, err
+	}
 
-	return HashKey{Type: s.Type(), Value: h.Sum64()}
+	return HashKey{Type: s.Type(), Value: h.Sum64()}, nil
 }

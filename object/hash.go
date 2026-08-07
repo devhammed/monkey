@@ -12,7 +12,7 @@ type HashKey struct {
 }
 
 type Hashable interface {
-	HashKey() HashKey
+	HashKey() (HashKey, error)
 }
 
 type HashPair struct {
@@ -30,8 +30,7 @@ func (h *Hash) Type() Type {
 
 func (h *Hash) Inspect() string {
 	var out bytes.Buffer
-
-	pairs := []string{}
+	var pairs []string
 
 	for _, pair := range h.Pairs {
 		pairs = append(pairs, fmt.Sprintf("%s: %s",

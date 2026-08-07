@@ -20,7 +20,7 @@ func (b *Boolean) Inspect() string {
 	return fmt.Sprintf("%t", b.Value)
 }
 
-func (b *Boolean) HashKey() HashKey {
+func (b *Boolean) HashKey() (HashKey, error) {
 	var value uint64
 
 	if b.Value {
@@ -29,5 +29,5 @@ func (b *Boolean) HashKey() HashKey {
 		value = 0
 	}
 
-	return HashKey{Type: b.Type(), Value: value}
+	return HashKey{Type: b.Type(), Value: value}, nil
 }

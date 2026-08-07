@@ -206,7 +206,12 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 				}
 
 				if hashKey, ok := key.(object.Hashable); ok {
-					hashed := hashKey.HashKey()
+					hashed, err := hashKey.HashKey()
+
+					if err != nil {
+						return newError("hash key error: %", err.Error())
+					}
+
 					hash.Pairs[hashed] = object.HashPair{Key: key, Value: value}
 
 					return NULL
@@ -350,7 +355,11 @@ func evalHashLiteral(
 			return value
 		}
 
-		hashed := hashKey.HashKey()
+		hashed, err := hashKey.HashKey()
+
+		if err != nil {
+			return newError("hash key error: %", err.Error())
+		}
 
 		pairs[hashed] = object.HashPair{Key: key, Value: value}
 	}
@@ -378,7 +387,12 @@ func evalHashIndexExpression(hash, index object.Object) object.Object {
 		return newError("unusable as hash key: %s", index.Type())
 	}
 
-	pair, ok := hashObject.Pairs[key.HashKey()]
+	hashKey, err := key.HashKey()
+	if err != nil {
+		return newError("hash key error: %", err.Error())
+	}
+
+	pair, ok := hashObject.Pairs[hashKey]
 
 	if !ok {
 		return NULL

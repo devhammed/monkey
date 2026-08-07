@@ -19,6 +19,6 @@ func (i *Integer) Clone() Object {
 	return &Integer{Value: i.Value}
 }
 
-func (i *Integer) HashKey() HashKey {
-	return HashKey{Type: i.Type(), Value: uint64(i.Value)}
+func (i *Integer) HashKey() (HashKey, error) {
+	return HashKey{Type: i.Type(), Value: uint64(i.Value)}, nil
 }
