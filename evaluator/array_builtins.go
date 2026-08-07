@@ -27,7 +27,7 @@ func init() {
 			}
 
 			i := start.Value
-			arr := []object.Object{}
+			var arr []object.Object
 
 			for i < end.Value {
 				arr = append(arr, &object.Integer{Value: i})
