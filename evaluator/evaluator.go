@@ -6,6 +6,7 @@ import (
 	"monkey/lexer"
 	"monkey/object"
 	"monkey/parser"
+	"os"
 )
 
 // Builtin singletons
@@ -38,6 +39,18 @@ func Run(
 		}
 
 		return nil
+	}
+
+	if _, ok := env.Get("ARGV"); !ok {
+		args := os.Args[1:]
+
+		var scriptArgs []object.Object
+
+		for _, scriptArg := range args {
+			scriptArgs = append(scriptArgs, &object.String{Value: scriptArg})
+		}
+
+		env.Set("ARGV", &object.Array{Elements: scriptArgs}, object.BindingOptions{SuperGlobal: true})
 	}
 
 	env.Set("MAIN", isMain, object.BindingOptions{SuperGlobal: true})

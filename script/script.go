@@ -9,8 +9,7 @@ import (
 
 // Start runs the script file passed
 func Start() {
-	args := os.Args[1:]
-	file := args[0]
+	file := os.Args[2]
 	data, err := os.ReadFile(file)
 
 	if err != nil {
@@ -20,14 +19,6 @@ func Start() {
 	}
 
 	env := object.NewEnvironment()
-
-	var scriptArgs []object.Object
-
-	for _, scriptArg := range args {
-		scriptArgs = append(scriptArgs, &object.String{Value: scriptArg})
-	}
-
-	env.Set("ARGV", &object.Array{Elements: scriptArgs})
 
 	evaluated := evaluator.Run(string(data), file, evaluator.TRUE, env)
 
