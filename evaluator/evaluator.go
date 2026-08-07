@@ -6,6 +6,7 @@ import (
 	"monkey/lexer"
 	"monkey/object"
 	"monkey/parser"
+	"monkey/typing"
 	"os"
 )
 
@@ -141,6 +142,11 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return &object.Function{Parameters: params, Env: env, Body: body}
 	case *ast.CallExpression:
 		function := Eval(node.Function, env)
+		name := "(anonymous)"
+
+		if ident, ok := node.Function.(*ast.Identifier); ok {
+			name = ident.Value
+		}
 
 		if isError(function) {
 			return function
@@ -152,7 +158,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return args[0]
 		}
 
-		return applyFunction(function, args, env)
+		return applyFunction(function, args, env, name)
 	case *ast.ArrayLiteral:
 		elements := evalExpressions(node.Elements, env)
 
@@ -291,18 +297,17 @@ func isTruthy(obj object.Object) bool {
 	}
 }
 
-func applyFunction(fn object.Object, args []object.Object, env *object.Environment) object.Object {
+func applyFunction(fn object.Object, args []object.Object, env *object.Environment, name string) object.Object {
 	switch fn := fn.(type) {
 	case *object.Function:
-		argsLength := len(args)
 		parametersLength := len(fn.Parameters)
 
-		if argsLength < parametersLength {
-			return newError(
-				"number of arguments passed to function is lesser than expected. got=%d, expected=%d",
-				argsLength,
-				parametersLength,
-			)
+		if err := typing.Check(
+			name,
+			args,
+			typing.MinimumArgs(parametersLength),
+		); err != nil {
+			return newError("%s", err.Error())
 		}
 
 		extendedEnv := extendFunctionEnv(fn, args)
