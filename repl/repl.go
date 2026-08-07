@@ -11,6 +11,10 @@ import (
 
 // Start is the repl loop function
 func Start() {
+	cwd, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
 	currentUser, err := user.Current()
 
 	if err != nil {
@@ -37,8 +41,7 @@ func Start() {
 		}
 
 		line := scanner.Text()
-
-		evaluated := evaluator.Run(line, "__REPL__", evaluator.TRUE, env)
+		evaluated := evaluator.Run(line, "__REPL__", cwd, true, env)
 
 		if evaluated != nil {
 			fmt.Println(evaluated.Inspect())

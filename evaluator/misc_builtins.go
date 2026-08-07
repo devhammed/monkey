@@ -4,6 +4,7 @@ import (
 	"monkey/object"
 	"monkey/typing"
 	"os"
+	"path/filepath"
 )
 
 func init() {
@@ -19,7 +20,11 @@ func init() {
 			}
 
 			file := args[0].Inspect()
-			data, err := os.ReadFile(file)
+			abs, err := filepath.Abs(file)
+			if err != nil {
+				return newError("failed to get absolute path for file: %s", err.Error())
+			}
+			data, err := os.ReadFile(abs)
 
 			if err != nil {
 				return newError("failed to require file: %s", err.Error())
@@ -27,7 +32,7 @@ func init() {
 
 			moduleEnv := object.NewModuleEnvironment(env)
 
-			evaluated := Run(string(data), file, FALSE, moduleEnv)
+			evaluated := Run(string(data), abs, filepath.Dir(abs), false, moduleEnv)
 
 			if evaluated != nil && evaluated.Type() == object.ERROR_OBJ {
 				return newError(

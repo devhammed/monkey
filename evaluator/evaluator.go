@@ -22,7 +22,8 @@ var (
 func Run(
 	code string,
 	file string,
-	isMain *object.Boolean,
+	dir string,
+	isMain bool,
 	env *object.Environment,
 ) object.Object {
 	l := lexer.New(code)
@@ -71,9 +72,10 @@ func Run(
 		}, object.BindingOptions{SuperGlobal: true})
 	}
 
-	env.Set("MAIN", isMain, object.BindingOptions{SuperGlobal: true})
+	env.Set("MAIN", nativeBoolToBooleanObject(isMain), object.BindingOptions{SuperGlobal: true})
 	env.Set("MONKEY_VERSION", MONKEY_VERSION, object.BindingOptions{SuperGlobal: true})
 	env.Set("FILE", &object.String{Value: file}, object.BindingOptions{SuperGlobal: true})
+	env.Set("DIR", &object.String{Value: dir}, object.BindingOptions{SuperGlobal: true})
 
 	return Eval(program, env)
 }
