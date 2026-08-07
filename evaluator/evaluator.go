@@ -11,11 +11,11 @@ import (
 
 // Builtin singletons
 var (
-	NULL           = &object.Null{}
-	TRUE           = &object.Boolean{Value: true}
-	FALSE          = &object.Boolean{Value: false}
-	MONKEY_VERSION = &object.String{Value: "v0.2.7"}
-	builtins       = map[string]*object.Builtin{}
+	NULL     = &object.Null{}
+	TRUE     = &object.Boolean{Value: true}
+	FALSE    = &object.Boolean{Value: false}
+	VERSION  = &object.String{Value: "v0.2.7"}
+	builtins = map[string]*object.Builtin{}
 )
 
 // Run lexes, parses, and evaluates code
@@ -73,7 +73,7 @@ func Run(
 	}
 
 	env.Set("MAIN", nativeBoolToBooleanObject(isMain), object.BindingOptions{SuperGlobal: true})
-	env.Set("VERSION", MONKEY_VERSION, object.BindingOptions{SuperGlobal: true})
+	env.Set("VERSION", VERSION, object.BindingOptions{SuperGlobal: true})
 	env.Set("FILE", &object.String{Value: file}, object.BindingOptions{SuperGlobal: true})
 	env.Set("DIR", &object.String{Value: dir}, object.BindingOptions{SuperGlobal: true})
 
