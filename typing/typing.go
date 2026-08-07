@@ -21,7 +21,7 @@ func ExactArgs(n int) CheckFunc {
 	return func(name string, args []object.Object) error {
 		if len(args) != n {
 			return fmt.Errorf(
-				"ArgumentsCountError: %s() takes exactly %d argument (%d given)",
+				"ArgumentError: %s() takes exactly %d argument (%d given)",
 				name, n, len(args),
 			)
 		}
@@ -34,7 +34,7 @@ func MinimumArgs(n int) CheckFunc {
 	return func(name string, args []object.Object) error {
 		if len(args) < n {
 			return fmt.Errorf(
-				"ArgumentsCountError: %s() takes a minimum %d arguments (%d given)",
+				"ArgumentError: %s() takes a minimum %d arguments (%d given)",
 				name, n, len(args),
 			)
 		}
@@ -47,7 +47,7 @@ func RangeOfArgs(n, m int) CheckFunc {
 	return func(name string, args []object.Object) error {
 		if len(args) < n || len(args) > m {
 			return fmt.Errorf(
-				"ArgumentsCountError: %s() takes at least %d arguments and at most %d (%d given)",
+				"ArgumentError: %s() takes at least %d arguments and at most %d (%d given)",
 				name, n, m, len(args),
 			)
 		}
@@ -62,7 +62,7 @@ func WithTypes(types ...object.Type) CheckFunc {
 			if i < len(args) && args[i].Type() != t {
 				return fmt.Errorf(
 					"TypeError: %s() expected argument #%d to be `%s` got `%s`",
-					name, (i + 1), t, args[i].Type(),
+					name, i+1, t, args[i].Type(),
 				)
 			}
 		}
@@ -77,7 +77,7 @@ func AllOfType(t object.Type) CheckFunc {
 			if arg.Type() != t {
 				return fmt.Errorf(
 					"TypeError: %s() expected argument #%d to be `%s` got `%s`",
-					name, (i + 1), t, arg.Type(),
+					name, i+1, t, arg.Type(),
 				)
 			}
 		}

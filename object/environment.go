@@ -2,16 +2,27 @@ package object
 
 import "unicode"
 
+// Binding is an object that holds a bound object
+type Binding struct {
+	Value Object
+	BindingOptions
+}
+
+// BindingOptions is an object that holds options for a binding
+type BindingOptions struct {
+	SuperGlobal bool
+}
+
 // Environment is an object that holds a mapping of names to bound objets
 type Environment struct {
-	store map[string]Object
+	store map[string]Binding
 	outer *Environment
 }
 
 // NewEnvironment constructs a new Environment object to hold bindings
 // of identifiers to their names
 func NewEnvironment() *Environment {
-	return &Environment{store: make(map[string]Object), outer: nil}
+	return &Environment{store: make(map[string]Binding), outer: nil}
 }
 
 // NewEnclosedEnvironment returns a new Environment with the parent set to the current
@@ -34,7 +45,7 @@ func (e *Environment) ExportedHash() *Hash {
 		if unicode.IsUpper(rune(k[0])) {
 			s := &String{Value: k}
 
-			pairs[s.HashKey()] = HashPair{Key: s, Value: v}
+			pairs[s.HashKey()] = HashPair{Key: s, Value: v.Value}
 		}
 	}
 
@@ -42,7 +53,7 @@ func (e *Environment) ExportedHash() *Hash {
 }
 
 // Get returns the object bound by name
-func (e *Environment) Get(name string) (Object, bool) {
+func (e *Environment) Get(name string) (Binding, bool) {
 	obj, ok := e.store[name]
 
 	if !ok && e.outer != nil {
@@ -53,8 +64,10 @@ func (e *Environment) Get(name string) (Object, bool) {
 }
 
 // Set stores the object with the given name
-func (e *Environment) Set(name string, val Object) Object {
-	e.store[name] = val
+func (e *Environment) Set(name string, val Object, options BindingOptions) Binding {
+	binding := Binding{Value: val, BindingOptions: options}
 
-	return val
+	e.store[name] = binding
+
+	return binding
 }

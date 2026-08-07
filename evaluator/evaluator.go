@@ -1,17 +1,11 @@
 package evaluator
 
 import (
-	"bufio"
 	"fmt"
-	"io"
-	"io/ioutil"
 	"monkey/ast"
 	"monkey/lexer"
 	"monkey/object"
 	"monkey/parser"
-	"monkey/typing"
-	"os"
-	"os/user"
 )
 
 // Builtin singletons
@@ -20,597 +14,15 @@ var (
 	TRUE           = &object.Boolean{Value: true}
 	FALSE          = &object.Boolean{Value: false}
 	MONKEY_VERSION = &object.String{Value: "v0.2.7"}
+	builtins       = map[string]*object.Builtin{}
 )
 
-// the "init" function is necessary to prevent initialization loop error.
-// see https://stackoverflow.com/questions/51667411/initialization-loop-golang#51667738
-
-var builtins = map[string]*object.Builtin{}
-
-func init() {
-	builtins = map[string]*object.Builtin{
-		"len": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
-				if err := typing.Check(
-					"len",
-					args,
-					typing.ExactArgs(1),
-				); err != nil {
-					return newError(err.Error())
-				}
-
-				switch arg := args[0].(type) {
-				case *object.Array:
-					return &object.Integer{Value: int64(len(arg.Elements))}
-				case *object.String:
-					return &object.Integer{Value: int64(len(arg.Value))}
-				default:
-					return newError("argument to `len` not supported, got %s",
-						args[0].Type())
-				}
-			},
-		},
-		"type": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
-				if err := typing.Check(
-					"type",
-					args,
-					typing.ExactArgs(1),
-				); err != nil {
-					return newError(err.Error())
-				}
-
-				return &object.String{Value: string(args[0].Type())}
-			},
-		},
-		"puts": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
-				if err := typing.Check(
-					"puts",
-					args,
-					typing.MinimumArgs(1),
-				); err != nil {
-					return newError(err.Error())
-				}
-
-				for _, arg := range args {
-					fmt.Println(arg.Inspect())
-				}
-
-				return NULL
-			},
-		},
-		"sys_exit": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
-				if err := typing.Check(
-					"sys_exit",
-					args,
-					typing.ExactArgs(1),
-					typing.WithTypes(object.INTEGER_OBJ),
-				); err != nil {
-					return newError(err.Error())
-				}
-
-				code := args[0].(*object.Integer)
-
-				os.Exit(int(code.Value))
-
-				return NULL
-			},
-		},
-		"sys_user": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
-				user, err := user.Current()
-
-				if err != nil {
-					return newError("failed to get user: %s", err.Error())
-				}
-
-				return &object.String{Value: user.Username}
-			},
-		},
-		"sys_user_name": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
-				user, err := user.Current()
-
-				if err != nil {
-					return newError("failed to get user name: %s", err.Error())
-				}
-
-				return &object.String{Value: user.Name}
-			},
-		},
-		"sys_user_gid": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
-				user, err := user.Current()
-
-				if err != nil {
-					return newError("failed to get user GID: %s", err.Error())
-				}
-
-				return &object.String{Value: user.Gid}
-			},
-		},
-		"sys_user_uid": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
-				user, err := user.Current()
-
-				if err != nil {
-					return newError("failed to get user UID: %s", err.Error())
-				}
-
-				return &object.String{Value: user.Uid}
-			},
-		},
-		"sys_user_home": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
-				user, err := user.Current()
-
-				if err != nil {
-					return newError("failed to get user home: %s", err.Error())
-				}
-
-				return &object.String{Value: user.HomeDir}
-			},
-		},
-		"sys_user_groups": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
-				user, err := user.Current()
-
-				if err != nil {
-					return newError("failed to get user: %s", err.Error())
-				}
-
-				groups, err := user.GroupIds()
-
-				if err != nil {
-					return newError("failed to get user groups: %s", err.Error())
-				}
-
-				var groupsArray []object.Object
-
-				for _, group := range groups {
-					groupsArray = append(groupsArray, &object.String{Value: group})
-				}
-
-				return &object.Array{Elements: groupsArray}
-			},
-		},
-		"require": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
-				if err := typing.Check(
-					"require",
-					args,
-					typing.ExactArgs(1),
-					typing.WithTypes(object.STRING_OBJ),
-				); err != nil {
-					return newError(err.Error())
-				}
-
-				file := args[0].Inspect()
-				data, err := ioutil.ReadFile(file)
-
-				if err != nil {
-					return newError("failed to require file: %s", err.Error())
-				}
-
-				env := object.NewEnvironment()
-
-				evaluated := Run(string(data), file, FALSE, env, os.Stdout)
-
-				if evaluated != nil && evaluated.Type() == object.ERROR_OBJ {
-					return newError(
-						"error in required file (%s):\n %s",
-						file,
-						evaluated.Inspect(),
-					)
-				}
-
-				return env.ExportedHash()
-			},
-		},
-		"input": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
-				if err := typing.Check(
-					"input",
-					args,
-					typing.RangeOfArgs(0, 1),
-					typing.WithTypes(object.STRING_OBJ),
-				); err != nil {
-					return newError(err.Error())
-				}
-
-				if len(args) == 1 {
-					prompt := args[0].(*object.String).Value
-
-					fmt.Fprintf(os.Stdout, prompt)
-				}
-
-				buffer := bufio.NewReader(os.Stdin)
-
-				line, _, err := buffer.ReadLine()
-
-				if err != nil && err != io.EOF {
-					return newError("error reading input from stdin: %s", err)
-				}
-
-				return &object.String{Value: string(line)}
-
-			},
-		},
-		"file_read": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
-				if err := typing.Check(
-					"file_read",
-					args,
-					typing.ExactArgs(1),
-					typing.WithTypes(object.STRING_OBJ),
-				); err != nil {
-					return newError(err.Error())
-				}
-
-				fileName := args[0].Inspect()
-
-				data, err := ioutil.ReadFile(fileName)
-
-				if err != nil {
-					return newError(err.Error())
-				}
-
-				return &object.String{Value: string(data)}
-			},
-		},
-		"file_readlines": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
-				if err := typing.Check(
-					"file_readlines",
-					args,
-					typing.ExactArgs(1),
-					typing.WithTypes(object.STRING_OBJ),
-				); err != nil {
-					return newError(err.Error())
-				}
-
-				fileName := args[0].Inspect()
-
-				f, err := os.Open(fileName)
-
-				if err != nil {
-					return newError(err.Error())
-				}
-
-				s := bufio.NewScanner(f)
-
-				var lines []object.Object
-
-				for s.Scan() {
-					lines = append(lines, &object.String{Value: s.Text()})
-				}
-
-				err = s.Err()
-
-				if err != nil {
-					return newError(err.Error())
-				}
-
-				if err = f.Close(); err != nil {
-					return newError(err.Error())
-				}
-
-				return &object.Array{Elements: lines}
-			},
-		},
-		"file_write": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
-				if err := typing.Check(
-					"file_write",
-					args,
-					typing.ExactArgs(3),
-					typing.WithTypes(object.STRING_OBJ, object.STRING_OBJ, object.INTEGER_OBJ),
-				); err != nil {
-					return newError(err.Error())
-				}
-
-				fileName := args[0].Inspect()
-				filePerms := args[2].(*object.Integer)
-
-				err := ioutil.WriteFile(
-					fileName,
-					[]byte(args[1].Inspect()),
-					os.FileMode(filePerms.Value),
-				)
-
-				if err != nil {
-					return newError(err.Error())
-				}
-
-				return NULL
-			},
-		},
-		"range": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
-				if err := typing.Check(
-					"range",
-					args,
-					typing.RangeOfArgs(2, 3),
-					typing.AllOfType(object.INTEGER_OBJ),
-				); err != nil {
-					return newError(err.Error())
-				}
-
-				step := int64(1)
-				end := args[1].(*object.Integer)
-				start := args[0].(*object.Integer)
-
-				if len(args) == 3 {
-					s := args[2].(*object.Integer)
-					step = s.Value
-				}
-
-				i := start.Value
-				arr := []object.Object{}
-
-				for i < end.Value {
-					arr = append(arr, &object.Integer{Value: i})
-					i = i + step
-				}
-
-				return &object.Array{Elements: arr}
-			},
-		},
-		"array_first": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
-				if err := typing.Check(
-					"array_first",
-					args,
-					typing.ExactArgs(1),
-					typing.WithTypes(object.ARRAY_OBJ),
-				); err != nil {
-					return newError(err.Error())
-				}
-
-				arr := args[0].(*object.Array)
-
-				if len(arr.Elements) > 0 {
-					return arr.Elements[0]
-				}
-
-				return NULL
-			},
-		},
-		"array_last": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
-				if err := typing.Check(
-					"array_last",
-					args,
-					typing.ExactArgs(1),
-					typing.WithTypes(object.ARRAY_OBJ),
-				); err != nil {
-					return newError(err.Error())
-				}
-
-				arr := args[0].(*object.Array)
-				length := len(arr.Elements)
-
-				if length > 0 {
-					return arr.Elements[length-1]
-				}
-
-				return NULL
-			},
-		},
-		"array_rest": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
-				if err := typing.Check(
-					"array_rest",
-					args,
-					typing.ExactArgs(1),
-					typing.WithTypes(object.ARRAY_OBJ),
-				); err != nil {
-					return newError(err.Error())
-				}
-
-				arr := args[0].(*object.Array)
-				length := len(arr.Elements)
-
-				if length > 0 {
-					newElements := make([]object.Object, length-1, length-1)
-					copy(newElements, arr.Elements[1:length])
-
-					return &object.Array{Elements: newElements}
-				}
-
-				return NULL
-			},
-		},
-		"array_push": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
-				if err := typing.Check(
-					"array_push",
-					args,
-					typing.ExactArgs(2),
-					typing.WithTypes(object.ARRAY_OBJ),
-				); err != nil {
-					return newError(err.Error())
-				}
-
-				arr := args[0].(*object.Array)
-				length := len(arr.Elements)
-				newElements := make([]object.Object, length+1, length+1)
-
-				copy(newElements, arr.Elements)
-
-				newElements[length] = args[1]
-
-				arr.Elements = newElements
-
-				return NULL
-			},
-		},
-		"array_map": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
-				if len(args) < 2 {
-					return newError("wrong number of arguments. got=%d, expected at least=2",
-						len(args))
-				}
-
-				if len(args) > 3 {
-					return newError("wrong number of arguments. got=%d, expected max=3",
-						len(args))
-				}
-
-				if args[0].Type() != object.ARRAY_OBJ {
-					return newError("first argument to `array_map` must be ARRAY, got %s",
-						args[0].Type())
-				}
-
-				if args[1].Type() != object.FUNCTION_OBJ && args[1].Type() != object.BUILTIN_OBJ {
-					return newError("second argument to `array_map` must be FUNCTION, got %s",
-						args[1].Type())
-				}
-
-				arr := args[0].(*object.Array)
-				elements := arr.Elements
-				length := len(elements)
-				newElements := make([]object.Object, length, length)
-
-				for i := 0; i < length; i++ {
-					fnArgs := []object.Object{elements[i], &object.Integer{Value: int64(i)}}
-
-					if len(args) == 3 {
-						fnArgs = append(fnArgs, arr)
-					}
-
-					newElements[i] = applyFunction(args[1], fnArgs)
-				}
-
-				return &object.Array{Elements: newElements}
-			},
-		},
-		"array_each": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
-				hasThis := len(args) == 3
-
-				if len(args) < 2 {
-					return newError("wrong number of arguments. got=%d, expected at least=2",
-						len(args))
-				}
-
-				if len(args) > 3 {
-					return newError("wrong number of arguments. got=%d, expected max=3",
-						len(args))
-				}
-
-				if args[0].Type() != object.ARRAY_OBJ {
-					return newError("first argument to `array_each` must be ARRAY, got %s",
-						args[0].Type())
-				}
-
-				if args[1].Type() != object.FUNCTION_OBJ && args[1].Type() != object.BUILTIN_OBJ {
-					return newError("second argument to `array_each` must be FUNCTION, got %s",
-						args[1].Type())
-				}
-
-				if hasThis && args[2].Type() != object.ARRAY_OBJ {
-					return newError("third argument to `array_each` must be ARRAY, got %s",
-						args[0].Type())
-				}
-
-				arr := args[0].(*object.Array)
-				elements := arr.Elements
-
-				for i := 0; i < len(elements); i++ {
-					fnArgs := []object.Object{elements[i], &object.Integer{Value: int64(i)}}
-
-					if hasThis {
-						fnArgs = append(fnArgs, arr)
-					}
-
-					applyFunction(args[1], fnArgs)
-				}
-
-				return NULL
-			},
-		},
-		"array_reduce": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
-				maxArgs := 4
-				minArgs := 3
-				hasThis := len(args) == maxArgs
-
-				if len(args) < minArgs {
-					return newError("wrong number of arguments. got=%d, expected at least=%d",
-						len(args), minArgs)
-				}
-
-				if len(args) > maxArgs {
-					return newError("wrong number of arguments. got=%d, expected max=%d",
-						len(args), maxArgs)
-				}
-
-				if args[0].Type() != object.ARRAY_OBJ {
-					return newError("first argument to `array_reduce` must be ARRAY, got %s",
-						args[0].Type())
-				}
-
-				if args[2].Type() != object.FUNCTION_OBJ && args[1].Type() != object.BUILTIN_OBJ {
-					return newError("third argument to `array_reduce` must be FUNCTION, got %s",
-						args[1].Type())
-				}
-
-				if hasThis && args[3].Type() != object.ARRAY_OBJ {
-					return newError("fourth argument to `array_reduce` must be ARRAY, got %s",
-						args[0].Type())
-				}
-
-				arr := args[0].(*object.Array)
-				elements := arr.Elements
-				acc := args[1]
-
-				for i := 0; i < len(elements); i++ {
-					fnArgs := []object.Object{acc, elements[i], &object.Integer{Value: int64(i)}}
-
-					if hasThis {
-						fnArgs = append(fnArgs, arr)
-					}
-
-					acc = applyFunction(args[2], fnArgs)
-				}
-
-				return acc
-			},
-		},
-		"array_copy": &object.Builtin{
-			Fn: func(args ...object.Object) object.Object {
-				if len(args) != 1 {
-					return newError("wrong number of arguments. got=%d, want=1",
-						len(args))
-				}
-
-				if args[0].Type() != object.ARRAY_OBJ {
-					return newError("argument to `array_copy` must be ARRAY, got %s",
-						args[0].Type())
-				}
-
-				arr := args[0].(*object.Array)
-				length := len(arr.Elements)
-				newElements := make([]object.Object, length, length)
-
-				copy(newElements, arr.Elements)
-
-				return &object.Array{Elements: newElements}
-			},
-		},
-	}
-}
-
-// Run lexes, parses and evaluates code
+// Run lexes, parses, and evaluates code
 func Run(
 	code string,
 	file string,
 	isMain object.Object,
 	env *object.Environment,
-	out io.Writer,
 ) object.Object {
 	l := lexer.New(code)
 	p := parser.New(l)
@@ -618,19 +30,19 @@ func Run(
 	errors := p.Errors()
 
 	if len(errors) != 0 {
-		io.WriteString(out, "Woops! We ran into some monkey business here!\n")
-		io.WriteString(out, " parser errors:\n")
+		fmt.Println("Woops! We ran into some monkey business here!")
+		fmt.Println(" parser errors:")
 
 		for _, msg := range errors {
-			io.WriteString(out, "\t"+msg+"\n")
+			fmt.Println("\t" + msg)
 		}
 
 		return nil
 	}
 
-	env.Set("MAIN", isMain)
-	env.Set("MONKEY_VERSION", MONKEY_VERSION)
-	env.Set("FILE", &object.String{Value: file})
+	env.Set("MAIN", isMain, object.BindingOptions{SuperGlobal: true})
+	env.Set("MONKEY_VERSION", MONKEY_VERSION, object.BindingOptions{SuperGlobal: true})
+	env.Set("FILE", &object.String{Value: file}, object.BindingOptions{SuperGlobal: true})
 
 	return Eval(program, env)
 }
@@ -740,10 +152,14 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 
 		if ident, ok := node.Left.(*ast.Identifier); ok {
+			if v, ok := env.Get(ident.Value); ok && v.SuperGlobal {
+				return newError("cannot reassign a superglobal")
+			}
+
 			if immutable, ok := value.(object.Immutable); ok {
-				env.Set(ident.Value, immutable.Clone())
+				env.Set(ident.Value, immutable.Clone(), object.BindingOptions{})
 			} else {
-				env.Set(ident.Value, value)
+				env.Set(ident.Value, value, object.BindingOptions{})
 			}
 
 			return NULL
@@ -853,7 +269,7 @@ func applyFunction(fn object.Object, args []object.Object) object.Object {
 
 		extendedEnv := extendFunctionEnv(fn, args)
 
-		extendedEnv.Set("arguments", &object.Array{Elements: args})
+		extendedEnv.Set("arguments", &object.Array{Elements: args}, object.BindingOptions{})
 
 		evaluated := Eval(fn.Body, extendedEnv)
 
@@ -872,7 +288,7 @@ func extendFunctionEnv(
 	env := object.NewEnclosedEnvironment(fn.Env)
 
 	for paramIdx, param := range fn.Parameters {
-		env.Set(param.Value, args[paramIdx])
+		env.Set(param.Value, args[paramIdx], object.BindingOptions{})
 	}
 
 	return env
@@ -1001,7 +417,7 @@ func evalIdentifier(
 	}
 
 	if val, ok := env.Get(node.Value); ok {
-		return val
+		return val.Value
 	}
 
 	return newError("identifier not found: " + node.Value)
