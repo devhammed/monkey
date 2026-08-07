@@ -49,7 +49,7 @@ func NewModuleEnvironment(parent *Environment) *Environment {
 	return env
 }
 
-// ExportedHash returns a new Hash with the names and values of every publically
+// ExportedHash returns a new Hash with the names and values of every publicly
 // exported binding in the environment. That is every binding that starts with a
 // capital letter. This is used by the module import system to wrap up the
 // evaluated module into an object.
