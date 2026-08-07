@@ -22,7 +22,7 @@ var (
 func Run(
 	code string,
 	file string,
-	isMain object.Object,
+	isMain *object.Boolean,
 	env *object.Environment,
 ) object.Object {
 	l := lexer.New(code)
