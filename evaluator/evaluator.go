@@ -209,7 +209,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 					hashed, err := hashKey.HashKey()
 
 					if err != nil {
-						return newError("hash key error: %", err.Error())
+						return newError("hash key error: %s", err.Error())
 					}
 
 					hash.Pairs[hashed] = object.HashPair{Key: key, Value: value}
@@ -358,7 +358,7 @@ func evalHashLiteral(
 		hashed, err := hashKey.HashKey()
 
 		if err != nil {
-			return newError("hash key error: %", err.Error())
+			return newError("hash key error: %s", err.Error())
 		}
 
 		pairs[hashed] = object.HashPair{Key: key, Value: value}
@@ -389,7 +389,7 @@ func evalHashIndexExpression(hash, index object.Object) object.Object {
 
 	hashKey, err := key.HashKey()
 	if err != nil {
-		return newError("hash key error: %", err.Error())
+		return newError("hash key error: %s", err.Error())
 	}
 
 	pair, ok := hashObject.Pairs[hashKey]
@@ -444,7 +444,7 @@ func evalIdentifier(
 		return val.Value
 	}
 
-	return newError("identifier not found: " + node.Value)
+	return newError("identifier not found: %s", node.Value)
 }
 
 func evalIfExpression(ie *ast.IfExpression, env *object.Environment) object.Object {

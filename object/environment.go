@@ -45,7 +45,12 @@ func (e *Environment) ExportedHash() *Hash {
 		if unicode.IsUpper(rune(k[0])) {
 			s := &String{Value: k}
 
-			pairs[s.HashKey()] = HashPair{Key: s, Value: v.Value}
+			hashKey, err := s.HashKey()
+			if err != nil {
+				continue
+			}
+
+			pairs[hashKey] = HashPair{Key: s, Value: v.Value}
 		}
 	}
 

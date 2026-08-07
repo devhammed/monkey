@@ -15,7 +15,7 @@ func init() {
 				typing.ExactArgs(1),
 				typing.WithTypes(object.STRING_OBJ),
 			); err != nil {
-				return newError(err.Error())
+				return newError("%s", err.Error())
 			}
 
 			file := args[0].Inspect()
@@ -48,7 +48,7 @@ func init() {
 				args,
 				typing.ExactArgs(1),
 			); err != nil {
-				return newError(err.Error())
+				return newError("%s", err.Error())
 			}
 
 			switch arg := args[0].(type) {
@@ -70,7 +70,7 @@ func init() {
 				args,
 				typing.ExactArgs(1),
 			); err != nil {
-				return newError(err.Error())
+				return newError("%s", err.Error())
 			}
 
 			return &object.String{Value: string(args[0].Type())}

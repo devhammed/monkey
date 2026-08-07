@@ -14,7 +14,7 @@ func init() {
 				args,
 				typing.MinimumArgs(1),
 			); err != nil {
-				return newError(err.Error())
+				return newError("%s", err.Error())
 			}
 
 			for _, arg := range args {
