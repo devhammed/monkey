@@ -109,7 +109,7 @@ func init() {
 			arr := args[0].(*object.Array)
 			elements := make([]object.Object, len(arr.Elements))
 			for i, element := range arr.Elements {
-				elements[i] = applyFunction(args[1], []object.Object{element, &object.Integer{Value: int64(i)}}, env, "(anonymous)")
+				elements[i] = applyFunction(args[1], []object.Object{element, &object.Integer{Value: int64(i)}}, env, "")
 			}
 			return &object.Array{Elements: elements}
 		},
@@ -125,7 +125,7 @@ func init() {
 			}
 
 			for i, element := range args[0].(*object.Array).Elements {
-				applyFunction(args[1], []object.Object{element, &object.Integer{Value: int64(i)}}, env, "(anonymous)")
+				applyFunction(args[1], []object.Object{element, &object.Integer{Value: int64(i)}}, env, "")
 			}
 			return NULL
 		},
@@ -154,7 +154,7 @@ func init() {
 			for i := 0; i < len(elements); i++ {
 				fnArgs := []object.Object{acc, elements[i], &object.Integer{Value: int64(i)}}
 
-				acc = applyFunction(acc, fnArgs, env, "(anonymous)")
+				acc = applyFunction(acc, fnArgs, env, "")
 			}
 
 			return acc

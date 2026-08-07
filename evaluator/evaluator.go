@@ -142,7 +142,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return &object.Function{Parameters: params, Env: env, Body: body}
 	case *ast.CallExpression:
 		function := Eval(node.Function, env)
-		name := "(anonymous)"
+		name := ""
 
 		if ident, ok := node.Function.(*ast.Identifier); ok {
 			name = ident.Value
@@ -300,6 +300,10 @@ func isTruthy(obj object.Object) bool {
 func applyFunction(fn object.Object, args []object.Object, env *object.Environment, name string) object.Object {
 	switch fn := fn.(type) {
 	case *object.Function:
+		if name == "" {
+			name = "(anonymous)"
+		}
+
 		parametersLength := len(fn.Parameters)
 
 		if err := typing.Check(
