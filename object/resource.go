@@ -1,7 +1,7 @@
 package object
 
 type Resource struct {
-	Name   string
+	Kind   string
 	Handle any
 }
 
@@ -10,5 +10,5 @@ func (r *Resource) Type() Type {
 }
 
 func (r *Resource) Inspect() string {
-	return "<resource:" + r.Name + ">"
+	return "<resource:" + r.Kind + ">"
 }
