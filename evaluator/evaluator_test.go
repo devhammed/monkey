@@ -35,6 +35,19 @@ func TestEvalIntegerExpression(t *testing.T) {
 	}
 }
 
+func TestEvalFractionalIntegerDivision(t *testing.T) {
+	evaluated := testEval("10 / 4")
+
+	result, ok := evaluated.(*object.Float)
+	if !ok {
+		t.Fatalf("object is not Float. got=%T (%+v)", evaluated, evaluated)
+	}
+
+	if result.Value != 2.5 {
+		t.Errorf("object has wrong value. got=%g, want=2.5", result.Value)
+	}
+}
+
 func TestEvalBooleanExpression(t *testing.T) {
 	tests := []struct {
 		input    string
