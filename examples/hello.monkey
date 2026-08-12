@@ -3,15 +3,15 @@
 # Try to execute this file directly to see the change
 
 if (!MAIN) {
-  puts(FILE + " is imported")
+  println(FILE + " is imported")
 } else {
-  puts(FILE + " is executed directly")
+  println(FILE + " is executed directly")
 }
 
 hi = "hi world";
 
 Hello = "Hello World";
 
-Print = fn(x) {
-  puts(x);
+Greet = fn(x) {
+  println("Hello " + x + "!");
 };

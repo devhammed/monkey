@@ -1,5 +1,5 @@
 hello = require("./hello.monkey")
 
-hello.Print(4 + 4)
+hello.Greet("Hammed")
 
-puts(hello.Hello)
+println(hello.Hello)

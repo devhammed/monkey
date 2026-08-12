@@ -11,4 +11,4 @@ Once again!
 f = 'Hello World';
 g = 'Hello \'World\'';
 
-puts(a, "\n", b, "\n", c, "\n", d, "\n", e, "\n", f, "\n", g);
+println(a, "\n", b, "\n", c, "\n", d, "\n", e, "\n", f, "\n", g);
