@@ -56,19 +56,19 @@ func Run(
 	}
 	if _, ok := env.Get("STDIN"); !ok {
 		env.Set("STDIN", &object.Resource{
-			Name:   "STDIN",
+			Kind:   "stdin",
 			Handle: os.Stdin,
 		}, object.BindingOptions{SuperGlobal: true})
 	}
 	if _, ok := env.Get("STDOUT"); !ok {
 		env.Set("STDOUT", &object.Resource{
-			Name:   "STDOUT",
+			Kind:   "stdout",
 			Handle: os.Stdout,
 		}, object.BindingOptions{SuperGlobal: true})
 	}
 	if _, ok := env.Get("STDERR"); !ok {
 		env.Set("STDERR", &object.Resource{
-			Name:   "STDERR",
+			Kind:   "stderr",
 			Handle: os.Stderr,
 		}, object.BindingOptions{SuperGlobal: true})
 	}
