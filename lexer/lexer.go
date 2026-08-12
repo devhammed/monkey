@@ -101,8 +101,14 @@ func (l *Lexer) NextToken() token.Token {
 		}
 
 		if l.isDigit() {
-			tok.Type = token.INT
 			tok.Literal = l.readNumber()
+			if bytes.Contains([]byte(tok.Literal), []byte(".")) ||
+				bytes.Contains([]byte(tok.Literal), []byte("e")) ||
+				bytes.Contains([]byte(tok.Literal), []byte("E")) {
+				tok.Type = token.FLOAT
+			} else {
+				tok.Type = token.INT
+			}
 
 			return tok
 		}
@@ -177,12 +183,45 @@ func (l *Lexer) readString() string {
 
 func (l *Lexer) readNumber() string {
 	position := l.position
+	end := position
 
-	for l.isDigit() {
-		l.readChar()
+	for end < len(l.input) && l.isDigitAt(l.input[end]) {
+		end++
 	}
 
-	return l.input[position:l.position]
+	if end+1 < len(l.input) && l.input[end] == '.' && l.isDigitAt(l.input[end+1]) {
+		end += 2
+		for end < len(l.input) && l.isDigitAt(l.input[end]) {
+			end++
+		}
+	}
+
+	if end < len(l.input) && (l.input[end] == 'e' || l.input[end] == 'E') {
+		exponentEnd := end + 1
+		if exponentEnd < len(l.input) && (l.input[exponentEnd] == '+' || l.input[exponentEnd] == '-') {
+			exponentEnd++
+		}
+		if exponentEnd < len(l.input) && l.isDigitAt(l.input[exponentEnd]) {
+			end = exponentEnd + 1
+			for end < len(l.input) && l.isDigitAt(l.input[end]) {
+				end++
+			}
+		}
+	}
+
+	l.position = end
+	l.readPosition = end + 1
+	if end >= len(l.input) {
+		l.ch = 0
+	} else {
+		l.ch = l.input[end]
+	}
+
+	return l.input[position:end]
+}
+
+func (l *Lexer) isDigitAt(ch byte) bool {
+	return '0' <= ch && ch <= '9'
 }
 
 func (l *Lexer) readIdentifier() string {

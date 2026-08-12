@@ -146,6 +146,8 @@ func objectToJson(value object.Object) (any, error) {
 		return value.Value, nil
 	case *object.Integer:
 		return value.Value, nil
+	case *object.Float:
+		return value.Value, nil
 	case *object.String:
 		return value.Value, nil
 	case *object.Array:
@@ -182,10 +184,15 @@ func jsonToObject(value any) (object.Object, error) {
 	case string:
 		return &object.String{Value: value}, nil
 	case json.Number:
-		if integer, err := strconv.ParseInt(string(value), 10, 64); err == nil {
-			return &object.Integer{Value: integer}, nil
+		if !strings.ContainsAny(string(value), ".eE") {
+			if integer, err := strconv.ParseInt(string(value), 10, 64); err == nil {
+				return &object.Integer{Value: integer}, nil
+			}
 		}
-		return nil, fmt.Errorf("JSON number %q is not an integer", value)
+		if number, err := strconv.ParseFloat(string(value), 64); err == nil {
+			return &object.Float{Value: number}, nil
+		}
+		return nil, fmt.Errorf("JSON number %q is not a valid number", value)
 	case []any:
 		elements := make([]object.Object, len(value))
 		for i, element := range value {

@@ -13,6 +13,9 @@ const (
 	// INT represents an integer
 	INT = "INT"
 
+	// FLOAT represents a floating-point number
+	FLOAT = "FLOAT"
+
 	// ASSIGN is assignment token
 	ASSIGN = "="
 

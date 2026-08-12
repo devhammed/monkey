@@ -102,8 +102,8 @@ func init() {
 			if err := typing.Check("array_map", args, typing.ExactArgs(2), typing.WithTypes(object.ARRAY_OBJ)); err != nil {
 				return newError("%s", err.Error())
 			}
-			if args[1].Type() != object.FUNCTION_OBJ && args[1].Type() != object.BUILTIN_OBJ {
-				return newError("second argument to `array_map` must be FUNCTION, got %s", args[1].Type())
+			if !isCallable(args[1]) {
+				return newError("second argument to `array_map` must be callable, got %s", args[1].Type())
 			}
 
 			arr := args[0].(*object.Array)
@@ -120,8 +120,8 @@ func init() {
 			if err := typing.Check("array_each", args, typing.ExactArgs(2), typing.WithTypes(object.ARRAY_OBJ)); err != nil {
 				return newError("%s", err.Error())
 			}
-			if args[1].Type() != object.FUNCTION_OBJ && args[1].Type() != object.BUILTIN_OBJ {
-				return newError("second argument to `array_each` must be FUNCTION, got %s", args[1].Type())
+			if !isCallable(args[1]) {
+				return newError("second argument to `array_each` must be callable, got %s", args[1].Type())
 			}
 
 			for i, element := range args[0].(*object.Array).Elements {
@@ -142,8 +142,8 @@ func init() {
 				return newError("%s", err.Error())
 			}
 
-			if args[1].Type() != object.FUNCTION_OBJ && args[1].Type() != object.BUILTIN_OBJ {
-				return newError("second argument to `array_reduce` must be FUNCTION, got %s",
+			if !isCallable(args[1]) {
+				return newError("second argument to `array_reduce` must be callable, got %s",
 					args[1].Type())
 			}
 
@@ -151,10 +151,8 @@ func init() {
 			elements := arr.Elements
 			acc := args[2]
 
-			for i := 0; i < len(elements); i++ {
-				fnArgs := []object.Object{acc, elements[i], &object.Integer{Value: int64(i)}}
-
-				acc = applyFunction(acc, fnArgs, env, "")
+			for i := range elements {
+				acc = applyFunction(acc, []object.Object{acc, elements[i], &object.Integer{Value: int64(i)}}, env, "")
 			}
 
 			return acc
@@ -168,7 +166,9 @@ func init() {
 			}
 
 			elements := make([]object.Object, len(args[0].(*object.Array).Elements))
+
 			copy(elements, args[0].(*object.Array).Elements)
+
 			return &object.Array{Elements: elements}
 		},
 	}
