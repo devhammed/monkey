@@ -1,9 +1,13 @@
 package evaluator
 
 import (
+	"encoding/json"
+	"fmt"
 	"io"
 	"monkey/object"
 	"monkey/typing"
+	"strconv"
+	"strings"
 )
 
 func init() {
@@ -79,5 +83,135 @@ func init() {
 
 			return NULL
 		},
+	}
+
+	builtins["json_encode"] = &object.Builtin{
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
+			if err := typing.Check("json_encode", args, typing.ExactArgs(1)); err != nil {
+				return newError("%s", err.Error())
+			}
+
+			value, err := objectToJson(args[0])
+			if err != nil {
+				return newError("json_encode: %s", err)
+			}
+			encoded, err := json.Marshal(value)
+			if err != nil {
+				return newError("json_encode: %s", err)
+			}
+			return &object.String{Value: string(encoded)}
+		},
+	}
+
+	builtins["json_decode"] = &object.Builtin{
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
+			if err := typing.Check(
+				"json_decode",
+				args,
+				typing.ExactArgs(1),
+				typing.WithTypes(object.STRING_OBJ),
+			); err != nil {
+				return newError("%s", err.Error())
+			}
+
+			decoder := json.NewDecoder(strings.NewReader(args[0].(*object.String).Value))
+			decoder.UseNumber()
+			var value any
+			if err := decoder.Decode(&value); err != nil {
+				return newError("json_decode: %s", err)
+			}
+			// Decode rejects trailing non-whitespace JSON, matching json.Unmarshal.
+			var trailing any
+			if err := decoder.Decode(&trailing); err != io.EOF {
+				if err == nil {
+					return newError("json_decode: invalid trailing data")
+				}
+				return newError("json_decode: %s", err)
+			}
+
+			decoded, err := jsonToObject(value)
+			if err != nil {
+				return newError("json_decode: %s", err)
+			}
+			return decoded
+		},
+	}
+}
+
+func objectToJson(value object.Object) (any, error) {
+	switch value := value.(type) {
+	case *object.Null:
+		return nil, nil
+	case *object.Boolean:
+		return value.Value, nil
+	case *object.Integer:
+		return value.Value, nil
+	case *object.String:
+		return value.Value, nil
+	case *object.Array:
+		result := make([]any, len(value.Elements))
+		for i, element := range value.Elements {
+			converted, err := objectToJson(element)
+			if err != nil {
+				return nil, err
+			}
+			result[i] = converted
+		}
+		return result, nil
+	case *object.Hash:
+		result := make(map[string]any, len(value.Pairs))
+		for _, pair := range value.Pairs {
+			converted, err := objectToJson(pair.Value)
+			if err != nil {
+				return nil, err
+			}
+			result[pair.Key.Inspect()] = converted
+		}
+		return result, nil
+	default:
+		return nil, fmt.Errorf("unsupported object type %s", value.Type())
+	}
+}
+
+func jsonToObject(value any) (object.Object, error) {
+	switch value := value.(type) {
+	case nil:
+		return NULL, nil
+	case bool:
+		return nativeBoolToBooleanObject(value), nil
+	case string:
+		return &object.String{Value: value}, nil
+	case json.Number:
+		if integer, err := strconv.ParseInt(string(value), 10, 64); err == nil {
+			return &object.Integer{Value: integer}, nil
+		}
+		return nil, fmt.Errorf("JSON number %q is not an integer", value)
+	case []any:
+		elements := make([]object.Object, len(value))
+		for i, element := range value {
+			converted, err := jsonToObject(element)
+			if err != nil {
+				return nil, err
+			}
+			elements[i] = converted
+		}
+		return &object.Array{Elements: elements}, nil
+	case map[string]any:
+		pairs := make(map[object.HashKey]object.HashPair, len(value))
+		for key, element := range value {
+			converted, err := jsonToObject(element)
+			if err != nil {
+				return nil, err
+			}
+			keyObject := &object.String{Value: key}
+			hashKey, err := keyObject.HashKey()
+			if err != nil {
+				return nil, err
+			}
+			pairs[hashKey] = object.HashPair{Key: keyObject, Value: converted}
+		}
+		return &object.Hash{Pairs: pairs}, nil
+	default:
+		return nil, fmt.Errorf("unsupported JSON value %T", value)
 	}
 }
