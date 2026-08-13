@@ -26,7 +26,7 @@ var (
 	SQRT2    = &object.Float{Value: math.Sqrt2}
 	SQRTE    = &object.Float{Value: math.SqrtE}
 	SQRTPI   = &object.Float{Value: math.SqrtPi}
-	SQRPHI   = &object.Float{Value: math.SqrtPhi}
+	SQRTPHI  = &object.Float{Value: math.SqrtPhi}
 	LN2      = &object.Float{Value: math.Ln2}
 	LOG2E    = &object.Float{Value: math.Log2E}
 	LN10     = &object.Float{Value: math.Ln10}
@@ -92,6 +92,27 @@ func Run(
 	}
 	if _, ok := env.Get("SQRT2"); !ok {
 		env.Set("SQRT2", SQRT2, object.BindingOptions{SuperGlobal: true})
+	}
+	if _, ok := env.Get("SQRTE"); !ok {
+		env.Set("SQRTE", SQRTE, object.BindingOptions{SuperGlobal: true})
+	}
+	if _, ok := env.Get("SQRTPI"); !ok {
+		env.Set("SQRTPI", SQRTPI, object.BindingOptions{SuperGlobal: true})
+	}
+	if _, ok := env.Get("SQRTPHI"); !ok {
+		env.Set("SQRTPHI", SQRTPHI, object.BindingOptions{SuperGlobal: true})
+	}
+	if _, ok := env.Get("LN2"); !ok {
+		env.Set("LN2", LN2, object.BindingOptions{SuperGlobal: true})
+	}
+	if _, ok := env.Get("LOG2E"); !ok {
+		env.Set("LOG2E", LOG2E, object.BindingOptions{SuperGlobal: true})
+	}
+	if _, ok := env.Get("LN10"); !ok {
+		env.Set("LN10", LN10, object.BindingOptions{SuperGlobal: true})
+	}
+	if _, ok := env.Get("LOG10E"); !ok {
+		env.Set("LOG10E", LOG10E, object.BindingOptions{SuperGlobal: true})
 	}
 
 	env.Set("MAIN", nativeBoolToBooleanObject(isMain), object.BindingOptions{SuperGlobal: true})
