@@ -11,7 +11,6 @@ func (b *Boolean) Type() Type {
 	return BOOLEAN_OBJ
 }
 
-// Clone creates a new copy
 func (b *Boolean) Clone() Object {
 	return &Boolean{Value: b.Value}
 }

@@ -14,7 +14,6 @@ func (i *Integer) Inspect() string {
 	return fmt.Sprintf("%d", i.Value)
 }
 
-// Clone creates a new copy
 func (i *Integer) Clone() Object {
 	return &Integer{Value: i.Value}
 }
