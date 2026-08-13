@@ -637,13 +637,11 @@ func evalMinusPrefixOperatorExpression(right object.Object) object.Object {
 	if right.Type() == object.FLOAT_OBJ {
 		return &object.Float{Value: -right.(*object.Float).Value}
 	}
-	if right.Type() != object.INTEGER_OBJ {
-		return newError("unknown operator: -%s", right.Type())
+	if right.Type() == object.INTEGER_OBJ {
+		return &object.Integer{Value: -right.(*object.Integer).Value}
 	}
 
-	value := right.(*object.Integer).Value
-
-	return &object.Integer{Value: -value}
+	return newError("unknown operator: -%s", right.Type())
 }
 
 func evalProgram(program *ast.Program, env *object.Environment) object.Object {
