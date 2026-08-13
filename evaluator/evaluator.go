@@ -36,7 +36,7 @@ var (
 )
 
 func init() {
-	for _, arg := range os.Args {
+	for _, arg := range os.Args[1:] {
 		ARGV.Elements = append(ARGV.Elements, &object.String{Value: arg})
 	}
 }
