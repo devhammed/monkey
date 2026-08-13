@@ -17,8 +17,6 @@ var (
 func init() {
 	superGlobals["VERSION"] = VERSION
 
-	superGlobals["ARGV"] = ARGV
-
 	builtins["require"] = &object.Builtin{
 		Fn: func(env *object.Environment, args ...object.Object) object.Object {
 			if err := typing.Check(

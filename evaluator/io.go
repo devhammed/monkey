@@ -28,6 +28,8 @@ func init() {
 		ARGV.Elements = append(ARGV.Elements, &object.String{Value: arg})
 	}
 
+	superGlobals["ARGV"] = ARGV
+
 	superGlobals["STDIN"] = STDIN
 
 	superGlobals["STDOUT"] = STDOUT
