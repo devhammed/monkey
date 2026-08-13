@@ -1,111 +1,111 @@
 package token
 
-const (
-	// ILLEGAL represents an illegal token
-	ILLEGAL = "ILLEGAL"
-
-	// EOF represents an end-of-file token
-	EOF = "EOF"
-
-	// IDENT represents an identifier e.g. add, foobar, x, y, ...
-	IDENT = "IDENT"
-
-	// INT represents an integer
-	INT = "INT"
-
-	// FLOAT represents a floating-point number
-	FLOAT = "FLOAT"
-
-	// ASSIGN is an assignment token
-	ASSIGN = "="
-
-	// PLUS is an addition token
-	PLUS = "+"
-
-	// MINUS is substration token
-	MINUS = "-"
-
-	// BANG is a bang token
-	BANG = "!"
-
-	// ASTERISK is a multiplication token
-	ASTERISK = "*"
-
-	// SLASH is a slash token
-	SLASH = "/"
-
-	// LT represents lesser than token
-	LT = "<"
-
-	// GT represents greater than token
-	GT = ">"
-
-	// EQ represents equals token
-	EQ = "=="
-
-	// NOTEQ represents not equals token
-	NOTEQ = "!="
-
-	// COMMA is a comma token
-	COMMA = ","
-
-	// SEMICOLON is a semicolon token
-	SEMICOLON = ";"
-
-	// LPAREN is a left parentheses token
-	LPAREN = "("
-
-	// RPAREN is a right parentheses token
-	RPAREN = ")"
-
-	// LBRACE is a left curly braces token
-	LBRACE = "{"
-
-	// RBRACE is a right curly braces token
-	RBRACE = "}"
-
-	// FUNCTION is a function token
-	FUNCTION = "FUNCTION"
-
-	// TRUE is a truthy boolean token
-	TRUE = "TRUE"
-
-	// FALSE is a falsy boolean token
-	FALSE = "FALSE"
-
-	// NULL represents a null value
-	NULL = "NULL"
-
-	// IF is an if statement token
-	IF = "IF"
-
-	// ELSE is an else statement token
-	ELSE = "ELSE"
-
-	// RETURN is a return statement token
-	RETURN = "RETURN"
-
-	// STRING represents a string literal
-	STRING = "STRING"
-
-	// LBRACKET is the left bracket token
-	LBRACKET = "["
-
-	// RBRACKET is the right bracket token
-	RBRACKET = "]"
-
-	// COLON is a colon token
-	COLON = ":"
-
-	// HASH is a hash token
-	HASH = "#"
-
-	// DOT is a dot token
-	DOT = "."
-)
-
 // Type represents type of a token
 type Type string
+
+const (
+	// ILLEGAL represents an illegal token
+	ILLEGAL Type = "ILLEGAL"
+
+	// EOF represents an end-of-file token
+	EOF Type = "EOF"
+
+	// IDENT represents an identifier e.g. add, foobar, x, y, ...
+	IDENT Type = "IDENT"
+
+	// INT represents an integer
+	INT Type = "INT"
+
+	// FLOAT represents a floating-point number
+	FLOAT Type = "FLOAT"
+
+	// ASSIGN is an assignment token
+	ASSIGN Type = "="
+
+	// PLUS is an addition token
+	PLUS Type = "+"
+
+	// MINUS is substration token
+	MINUS Type = "-"
+
+	// BANG is a bang token
+	BANG Type = "!"
+
+	// ASTERISK is a multiplication token
+	ASTERISK Type = "*"
+
+	// SLASH is a slash token
+	SLASH Type = "/"
+
+	// LT represents lesser than token
+	LT Type = "<"
+
+	// GT represents greater than token
+	GT Type = ">"
+
+	// EQ represents equals token
+	EQ Type = "=="
+
+	// NOTEQ represents not equals token
+	NOTEQ Type = "!="
+
+	// COMMA is a comma token
+	COMMA Type = ","
+
+	// SEMICOLON is a semicolon token
+	SEMICOLON Type = ";"
+
+	// LPAREN is a left parentheses token
+	LPAREN Type = "("
+
+	// RPAREN is a right parentheses token
+	RPAREN Type = ")"
+
+	// LBRACE is a left curly braces token
+	LBRACE Type = "{"
+
+	// RBRACE is a right curly braces token
+	RBRACE Type = "}"
+
+	// FUNCTION is a function token
+	FUNCTION Type = "FUNCTION"
+
+	// TRUE is a truthy boolean token
+	TRUE Type = "TRUE"
+
+	// FALSE is a falsy boolean token
+	FALSE Type = "FALSE"
+
+	// NULL represents a null value
+	NULL Type = "NULL"
+
+	// IF is an if statement token
+	IF Type = "IF"
+
+	// ELSE is an else statement token
+	ELSE Type = "ELSE"
+
+	// RETURN is a return statement token
+	RETURN Type = "RETURN"
+
+	// STRING represents a string literal
+	STRING Type = "STRING"
+
+	// LBRACKET is the left bracket token
+	LBRACKET Type = "["
+
+	// RBRACKET is the right bracket token
+	RBRACKET Type = "]"
+
+	// COLON is a colon token
+	COLON Type = ":"
+
+	// HASH is a hash token
+	HASH Type = "#"
+
+	// DOT is a dot token
+	DOT Type = "."
+)
 
 // Token represents a single token
 type Token struct {
