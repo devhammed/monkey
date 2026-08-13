@@ -447,9 +447,8 @@ func evalHashLiteral(
 func evalArrayIndexExpression(array, index object.Object) object.Object {
 	arrayObject := array.(*object.Array)
 	idx := index.(*object.Integer).Value
-	maxIndex := int64(len(arrayObject.Elements) - 1)
 
-	if idx < 0 || idx > maxIndex {
+	if idx < 0 || idx >= int64(len(arrayObject.Elements)) {
 		return NULL
 	}
 
@@ -481,9 +480,8 @@ func evalHashIndexExpression(hash, index object.Object) object.Object {
 func evalStringIndexExpression(str, index object.Object) object.Object {
 	stringObject := str.(*object.String)
 	idx := index.(*object.Integer).Value
-	maxIndex := int64(len(stringObject.Value) - 1)
 
-	if idx < 0 || idx > maxIndex {
+	if idx < 0 || idx >= int64(len(stringObject.Value)) {
 		return &object.String{Value: ""}
 	}
 
