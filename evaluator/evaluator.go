@@ -2,6 +2,7 @@ package evaluator
 
 import (
 	"fmt"
+	"math"
 	"monkey/ast"
 	"monkey/lexer"
 	"monkey/object"
@@ -16,6 +17,9 @@ var (
 	TRUE     = &object.Boolean{Value: true}
 	FALSE    = &object.Boolean{Value: false}
 	VERSION  = &object.String{Value: "v0.2.7"}
+	E        = &object.Float{Value: math.E}
+	PI       = &object.Float{Value: math.Pi}
+	PHI      = &object.Float{Value: math.Phi}
 	builtins = map[string]*object.Builtin{}
 )
 
@@ -72,9 +76,20 @@ func Run(
 			Handle: os.Stderr,
 		}, object.BindingOptions{SuperGlobal: true})
 	}
+	if _, ok := env.Get("VERSION"); !ok {
+		env.Set("VERSION", VERSION, object.BindingOptions{SuperGlobal: true})
+	}
+	if _, ok := env.Get("E"); !ok {
+		env.Set("E", E, object.BindingOptions{SuperGlobal: true})
+	}
+	if _, ok := env.Get("PI"); !ok {
+		env.Set("PI", PI, object.BindingOptions{SuperGlobal: true})
+	}
+	if _, ok := env.Get("PHI"); !ok {
+		env.Set("PHI", PHI, object.BindingOptions{SuperGlobal: true})
+	}
 
 	env.Set("MAIN", nativeBoolToBooleanObject(isMain), object.BindingOptions{SuperGlobal: true})
-	env.Set("VERSION", VERSION, object.BindingOptions{SuperGlobal: true})
 	env.Set("FILE", &object.String{Value: file}, object.BindingOptions{SuperGlobal: true})
 	env.Set("DIR", &object.String{Value: dir}, object.BindingOptions{SuperGlobal: true})
 
