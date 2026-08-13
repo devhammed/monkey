@@ -1,22 +1,23 @@
 package object
 
+// Type represents a type of object
+type Type string
+
 // Object Types
 const (
-	INTEGER_OBJ      = "INTEGER"
-	FLOAT_OBJ        = "FLOAT"
-	BOOLEAN_OBJ      = "BOOLEAN"
-	NULL_OBJ         = "NULL"
-	RETURN_VALUE_OBJ = "RETURN_VALUE"
-	ERROR_OBJ        = "ERROR"
-	FUNCTION_OBJ     = "FUNCTION"
-	STRING_OBJ       = "STRING"
-	BUILTIN_OBJ      = "BUILTIN"
-	RESOURCE_OBJ     = "RESOURCE"
-	ARRAY_OBJ        = "ARRAY"
-	HASH_OBJ         = "HASH"
+	INTEGER_OBJ      Type = "INTEGER"
+	FLOAT_OBJ        Type = "FLOAT"
+	BOOLEAN_OBJ      Type = "BOOLEAN"
+	NULL_OBJ         Type = "NULL"
+	RETURN_VALUE_OBJ Type = "RETURN_VALUE"
+	ERROR_OBJ        Type = "ERROR"
+	FUNCTION_OBJ     Type = "FUNCTION"
+	STRING_OBJ       Type = "STRING"
+	BUILTIN_OBJ      Type = "BUILTIN"
+	RESOURCE_OBJ     Type = "RESOURCE"
+	ARRAY_OBJ        Type = "ARRAY"
+	HASH_OBJ         Type = "HASH"
 )
-
-type Type string
 
 // Immutable is the interface for all immutable objects which must implement
 // the Clone() method used by binding names to values.
