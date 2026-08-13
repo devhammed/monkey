@@ -18,9 +18,9 @@ var (
 	FALSE    = &object.Boolean{Value: false}
 	VERSION  = &object.String{Value: "v0.2.7"}
 	ARGV     = &object.Array{}
-	STDIN    = &object.Resource{Kind: "stdin", Handle: os.Stdin}
-	STDOUT   = &object.Resource{Kind: "stdout", Handle: os.Stdout}
-	STDERR   = &object.Resource{Kind: "stderr", Handle: os.Stderr}
+	STDIN    = &object.Resource{Kind: "STDIN", Handle: os.Stdin}
+	STDOUT   = &object.Resource{Kind: "STDOUT", Handle: os.Stdout}
+	STDERR   = &object.Resource{Kind: "STDERR", Handle: os.Stderr}
 	E        = &object.Float{Value: math.E}
 	PI       = &object.Float{Value: math.Pi}
 	PHI      = &object.Float{Value: math.Phi}

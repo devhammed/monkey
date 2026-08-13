@@ -119,6 +119,16 @@ func init() {
 		},
 	}
 
+	builtins["kind"] = &object.Builtin{
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
+			if err := typing.Check("kind", args, typing.ExactArgs(1), typing.WithTypes(object.RESOURCE_OBJ)); err != nil {
+				return newError("%s", err.Error())
+			}
+
+			return &object.String{Value: args[0].(*object.Resource).Kind}
+		},
+	}
+
 	builtins["json_encode"] = &object.Builtin{
 		Fn: func(env *object.Environment, args ...object.Object) object.Object {
 			if err := typing.Check("json_encode", args, typing.ExactArgs(1)); err != nil {
