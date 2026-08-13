@@ -13,7 +13,28 @@ import (
 	"strings"
 )
 
+var (
+	STDIN        = &object.Resource{Kind: "STDIN", Handle: os.Stdin}
+	STDOUT       = &object.Resource{Kind: "STDOUT", Handle: os.Stdout}
+	STDERR       = &object.Resource{Kind: "STDERR", Handle: os.Stderr}
+	SEEK_START   = &object.Integer{Value: 0}
+	SEEK_CURRENT = &object.Integer{Value: 1}
+	SEEK_END     = &object.Integer{Value: 2}
+)
+
 func init() {
+	superGlobals["STDIN"] = STDIN
+
+	superGlobals["STDOUT"] = STDOUT
+
+	superGlobals["STDERR"] = STDERR
+
+	superGlobals["SEEK_START"] = SEEK_START
+
+	superGlobals["SEEK_CURRENT"] = SEEK_CURRENT
+
+	superGlobals["SEEK_END"] = SEEK_END
+
 	builtins["print"] = &object.Builtin{
 		Fn: func(env *object.Environment, args ...object.Object) object.Object {
 			if err := typing.Check(

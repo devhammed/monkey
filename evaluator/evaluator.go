@@ -2,70 +2,20 @@ package evaluator
 
 import (
 	"fmt"
-	"math"
 	"monkey/ast"
 	"monkey/lexer"
 	"monkey/object"
 	"monkey/parser"
 	"monkey/typing"
-	"os"
 )
 
-// Builtin singletons
 var (
-	NULL         = &object.Null{}
-	TRUE         = &object.Boolean{Value: true}
-	FALSE        = &object.Boolean{Value: false}
-	VERSION      = &object.String{Value: "v0.2.7"}
-	ARGV         = &object.Array{}
-	STDIN        = &object.Resource{Kind: "STDIN", Handle: os.Stdin}
-	STDOUT       = &object.Resource{Kind: "STDOUT", Handle: os.Stdout}
-	STDERR       = &object.Resource{Kind: "STDERR", Handle: os.Stderr}
-	SEEK_START   = &object.Integer{Value: 0}
-	SEEK_CURRENT = &object.Integer{Value: 1}
-	SEEK_END     = &object.Integer{Value: 2}
-	E            = &object.Float{Value: math.E}
-	PI           = &object.Float{Value: math.Pi}
-	PHI          = &object.Float{Value: math.Phi}
-	SQRT2        = &object.Float{Value: math.Sqrt2}
-	SQRTE        = &object.Float{Value: math.SqrtE}
-	SQRTPI       = &object.Float{Value: math.SqrtPi}
-	SQRTPHI      = &object.Float{Value: math.SqrtPhi}
-	LN2          = &object.Float{Value: math.Ln2}
-	LOG2E        = &object.Float{Value: math.Log2E}
-	LN10         = &object.Float{Value: math.Ln10}
-	LOG10E       = &object.Float{Value: math.Log10E}
+	// superGlobals is a map that stores predefined super-global variables accessible in the runtime environment.
 	superGlobals = map[string]object.Object{}
-	builtins     = map[string]*object.Builtin{}
+
+	// builtins is a map that stores predefined built-in functions accessible in the runtime environment.
+	builtins = map[string]*object.Builtin{}
 )
-
-func init() {
-	for _, arg := range os.Args[1:] {
-		ARGV.Elements = append(ARGV.Elements, &object.String{Value: arg})
-	}
-
-	superGlobals = map[string]object.Object{
-		"VERSION":      VERSION,
-		"ARGV":         ARGV,
-		"STDIN":        STDIN,
-		"STDOUT":       STDOUT,
-		"STDERR":       STDERR,
-		"SEEK_START":   SEEK_START,
-		"SEEK_CURRENT": SEEK_CURRENT,
-		"SEEK_END":     SEEK_END,
-		"E":            E,
-		"PI":           PI,
-		"PHI":          PHI,
-		"SQRT2":        SQRT2,
-		"SQRTE":        SQRTE,
-		"SQRTPI":       SQRTPI,
-		"SQRTPHI":      SQRTPHI,
-		"LN2":          LN2,
-		"LOG2E":        LOG2E,
-		"LN10":         LN10,
-		"LOG10E":       LOG10E,
-	}
-}
 
 // Run lexes, parses, and evaluates code
 func Run(
@@ -91,9 +41,9 @@ func Run(
 		return nil
 	}
 
-	for name, constant := range superGlobals {
+	for name, value := range superGlobals {
 		if _, ok := env.Get(name); !ok {
-			env.Set(name, constant, object.BindingOptions{SuperGlobal: true})
+			env.Set(name, value, object.BindingOptions{SuperGlobal: true})
 		}
 	}
 
