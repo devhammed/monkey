@@ -50,6 +50,75 @@ func init() {
 		},
 	}
 
+	builtins["input"] = &object.Builtin{
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
+			if err := typing.Check(
+				"input",
+				args,
+				typing.RangeOfArgs(0, 1),
+				typing.WithTypes(object.STRING_OBJ),
+			); err != nil {
+				return newError("%s", err.Error())
+			}
+
+			if len(args) == 1 {
+				stdout, ok := env.Get("STDOUT")
+				if !ok {
+					return newError("input: STDOUT is not defined")
+				}
+
+				resource, ok := stdout.Value.(*object.Resource)
+				if !ok {
+					return newError("input: STDOUT is not a resource")
+				}
+
+				writer, ok := resource.Handle.(io.Writer)
+				if !ok {
+					return newError("input: STDOUT is not writable")
+				}
+
+				if _, err := io.WriteString(writer, args[0].(*object.String).Value); err != nil {
+					return newError("input: %s", err)
+				}
+			}
+
+			stdin, ok := env.Get("STDIN")
+			if !ok {
+				return newError("input: STDIN is not defined")
+			}
+
+			resource, ok := stdin.Value.(*object.Resource)
+			if !ok {
+				return newError("input: STDIN is not a resource")
+			}
+
+			reader, ok := resource.Handle.(io.Reader)
+			if !ok {
+				return newError("input: STDIN is not readable")
+			}
+
+			var line strings.Builder
+			var buffer [1]byte
+			for {
+				n, err := reader.Read(buffer[:])
+				if n > 0 {
+					if buffer[0] == '\n' {
+						break
+					}
+					line.WriteByte(buffer[0])
+				}
+				if err != nil {
+					if err != io.EOF {
+						return newError("input: %s", err)
+					}
+					break
+				}
+			}
+
+			return &object.String{Value: strings.TrimSuffix(line.String(), "\r")}
+		},
+	}
+
 	builtins["json_encode"] = &object.Builtin{
 		Fn: func(env *object.Environment, args ...object.Object) object.Object {
 			if err := typing.Check("json_encode", args, typing.ExactArgs(1)); err != nil {
