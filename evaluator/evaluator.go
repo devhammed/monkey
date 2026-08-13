@@ -13,22 +13,13 @@ import (
 
 // Builtin singletons
 var (
-	NULL    = &object.Null{}
-	TRUE    = &object.Boolean{Value: true}
-	FALSE   = &object.Boolean{Value: false}
-	VERSION = &object.String{Value: "v0.2.7"}
-	STDIN   = &object.Resource{
-		Kind:   "stdin",
-		Handle: os.Stdin,
-	}
-	STDOUT = &object.Resource{
-		Kind:   "stdout",
-		Handle: os.Stdout,
-	}
-	STDERR = &object.Resource{
-		Kind:   "stderr",
-		Handle: os.Stderr,
-	}
+	NULL     = &object.Null{}
+	TRUE     = &object.Boolean{Value: true}
+	FALSE    = &object.Boolean{Value: false}
+	VERSION  = &object.String{Value: "v0.2.7"}
+	STDIN    = &object.Resource{Kind: "stdin", Handle: os.Stdin}
+	STDOUT   = &object.Resource{Kind: "stdout", Handle: os.Stdout}
+	STDERR   = &object.Resource{Kind: "stderr", Handle: os.Stderr}
 	E        = &object.Float{Value: math.E}
 	PI       = &object.Float{Value: math.Pi}
 	PHI      = &object.Float{Value: math.Phi}
