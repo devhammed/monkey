@@ -197,6 +197,84 @@ func init() {
 		},
 	}
 
+	builtins["write"] = &object.Builtin{
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
+			if err := typing.Check("write", args, typing.RangeOfArgs(2, 3), typing.WithTypes(object.RESOURCE_OBJ, object.STRING_OBJ, object.INTEGER_OBJ)); err != nil {
+				return newError("%s", err.Error())
+			}
+
+			resource := args[0].(*object.Resource)
+			writer, ok := resource.Handle.(io.Writer)
+			if !ok {
+				return newError("write: resource is not writable")
+			}
+
+			data := args[1].(*object.String).Value
+			if len(args) == 3 {
+				length := args[2].(*object.Integer).Value
+				if length < 0 {
+					return newError("ValueError: write() length must not be negative")
+				}
+				if length < int64(len(data)) {
+					data = data[:length]
+				}
+			}
+
+			n, err := io.WriteString(writer, data)
+			if err != nil {
+				return newError("write: %s", err)
+			}
+			return &object.Integer{Value: int64(n)}
+		},
+	}
+
+	builtins["read"] = &object.Builtin{
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
+			if err := typing.Check("read", args, typing.ExactArgs(2), typing.WithTypes(object.RESOURCE_OBJ, object.INTEGER_OBJ)); err != nil {
+				return newError("%s", err.Error())
+			}
+
+			length := args[1].(*object.Integer).Value
+			if length < 0 {
+				return newError("ValueError: read() length must not be negative")
+			}
+			if length > int64(^uint(0)>>1) {
+				return newError("ValueError: read() length is too large")
+			}
+
+			resource := args[0].(*object.Resource)
+			reader, ok := resource.Handle.(io.Reader)
+			if !ok {
+				return newError("read: resource is not readable")
+			}
+
+			buffer := make([]byte, length)
+			n, err := reader.Read(buffer)
+			if err != nil && err != io.EOF {
+				return newError("read: %s", err)
+			}
+			return &object.String{Value: string(buffer[:n])}
+		},
+	}
+
+	builtins["close"] = &object.Builtin{
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
+			if err := typing.Check("close", args, typing.ExactArgs(1), typing.WithTypes(object.RESOURCE_OBJ)); err != nil {
+				return newError("%s", err.Error())
+			}
+
+			resource := args[0].(*object.Resource)
+			closer, ok := resource.Handle.(io.Closer)
+			if !ok {
+				return newError("close: resource is not closable")
+			}
+			if err := closer.Close(); err != nil {
+				return newError("close: %s", err)
+			}
+			return NULL
+		},
+	}
+
 	builtins["json_encode"] = &object.Builtin{
 		Fn: func(env *object.Environment, args ...object.Object) object.Object {
 			if err := typing.Check("json_encode", args, typing.ExactArgs(1)); err != nil {
