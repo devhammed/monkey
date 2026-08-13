@@ -275,6 +275,31 @@ func init() {
 		},
 	}
 
+	builtins["seek"] = &object.Builtin{
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
+			if err := typing.Check("seek", args, typing.RangeOfArgs(2, 3), typing.WithTypes(object.RESOURCE_OBJ, object.INTEGER_OBJ, object.INTEGER_OBJ)); err != nil {
+				return newError("%s", err.Error())
+			}
+
+			resource := args[0].(*object.Resource)
+			seeker, ok := resource.Handle.(io.Seeker)
+			if !ok {
+				return newError("seek: resource is not seekable")
+			}
+
+			whence := io.SeekStart
+			if len(args) == 3 {
+				whence = int(args[2].(*object.Integer).Value)
+			}
+
+			position, err := seeker.Seek(args[1].(*object.Integer).Value, whence)
+			if err != nil {
+				return newError("seek: %s", err)
+			}
+			return &object.Integer{Value: position}
+		},
+	}
+
 	builtins["json_encode"] = &object.Builtin{
 		Fn: func(env *object.Environment, args ...object.Object) object.Object {
 			if err := typing.Check("json_encode", args, typing.ExactArgs(1)); err != nil {
