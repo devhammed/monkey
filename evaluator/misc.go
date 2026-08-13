@@ -12,13 +12,9 @@ var (
 	TRUE    = &object.Boolean{Value: true}
 	FALSE   = &object.Boolean{Value: false}
 	VERSION = &object.String{Value: "v0.2.7"}
-	ARGV    = &object.Array{}
 )
 
 func init() {
-	for _, arg := range os.Args[1:] {
-		ARGV.Elements = append(ARGV.Elements, &object.String{Value: arg})
-	}
 
 	superGlobals["VERSION"] = VERSION
 

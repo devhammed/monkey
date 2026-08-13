@@ -14,6 +14,7 @@ import (
 )
 
 var (
+	ARGV         = &object.Array{}
 	STDIN        = &object.Resource{Kind: "STDIN", Handle: os.Stdin}
 	STDOUT       = &object.Resource{Kind: "STDOUT", Handle: os.Stdout}
 	STDERR       = &object.Resource{Kind: "STDERR", Handle: os.Stderr}
@@ -23,6 +24,10 @@ var (
 )
 
 func init() {
+	for _, arg := range os.Args[1:] {
+		ARGV.Elements = append(ARGV.Elements, &object.String{Value: arg})
+	}
+
 	superGlobals["STDIN"] = STDIN
 
 	superGlobals["STDOUT"] = STDOUT
