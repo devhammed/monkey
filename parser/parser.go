@@ -9,21 +9,24 @@ import (
 	"strconv"
 )
 
+// Precedence represents the binding power of an operator
+type Precedence int
+
 // Operators & Calls
 const (
-	_           int = iota
-	LOWEST          // LOWEST
-	ASSIGN          // =
-	EQUALS          // ==
-	LESSGREATER     // > or <
-	SUM             // +
-	PRODUCT         // *
-	PREFIX          // -X or !X
-	CALL            // myFunction(X)
-	INDEX           // INDEX
+	_           Precedence = iota
+	LOWEST                 // LOWEST
+	ASSIGN                 // =
+	EQUALS                 // ==
+	LESSGREATER            // > or <
+	SUM                    // +
+	PRODUCT                // *
+	PREFIX                 // -X or !X
+	CALL                   // myFunction(X)
+	INDEX                  // INDEX
 )
 
-var precedences = map[token.Type]int{
+var precedences = map[token.Type]Precedence{
 	token.ASSIGN:   ASSIGN,
 	token.EQ:       EQUALS,
 	token.NOTEQ:    EQUALS,
@@ -122,7 +125,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 	return program
 }
 
-func (p *Parser) peekPrecedence() int {
+func (p *Parser) peekPrecedence() Precedence {
 	if p, ok := precedences[p.peekToken.Type]; ok {
 		return p
 	}
@@ -130,7 +133,7 @@ func (p *Parser) peekPrecedence() int {
 	return LOWEST
 }
 
-func (p *Parser) curPrecedence() int {
+func (p *Parser) curPrecedence() Precedence {
 	if p, ok := precedences[p.curToken.Type]; ok {
 		return p
 	}
@@ -178,7 +181,7 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	return stmt
 }
 
-func (p *Parser) parseExpression(precedence int) ast.Expression {
+func (p *Parser) parseExpression(precedence Precedence) ast.Expression {
 	prefix := p.prefixParseFns[p.curToken.Type]
 
 	if prefix == nil {
