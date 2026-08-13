@@ -1,4 +1,4 @@
-t = "Hello, " + input("What is your name? ") + "\n"
+t = "Hello, " + input("What is your name? ")
 
 f = open("/tmp/monkey.txt", "w+")
 
