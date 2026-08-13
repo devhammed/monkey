@@ -227,7 +227,7 @@ func (l *Lexer) isDigitAt(ch byte) bool {
 func (l *Lexer) readIdentifier() string {
 	position := l.position
 
-	for l.isLetter() {
+	for l.isLetter() || l.isDigit() {
 		l.readChar()
 	}
 

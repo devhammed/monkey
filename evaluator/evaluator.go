@@ -23,6 +23,14 @@ var (
 	E        = &object.Float{Value: math.E}
 	PI       = &object.Float{Value: math.Pi}
 	PHI      = &object.Float{Value: math.Phi}
+	SQRT2    = &object.Float{Value: math.Sqrt2}
+	SQRTE    = &object.Float{Value: math.SqrtE}
+	SQRTPI   = &object.Float{Value: math.SqrtPi}
+	SQRPHI   = &object.Float{Value: math.SqrtPhi}
+	LN2      = &object.Float{Value: math.Ln2}
+	LOG2E    = &object.Float{Value: math.Log2E}
+	LN10     = &object.Float{Value: math.Ln10}
+	LOG10E   = &object.Float{Value: math.Log10E}
 	builtins = map[string]*object.Builtin{}
 )
 
@@ -81,6 +89,9 @@ func Run(
 	}
 	if _, ok := env.Get("PHI"); !ok {
 		env.Set("PHI", PHI, object.BindingOptions{SuperGlobal: true})
+	}
+	if _, ok := env.Get("SQRT2"); !ok {
+		env.Set("SQRT2", SQRT2, object.BindingOptions{SuperGlobal: true})
 	}
 
 	env.Set("MAIN", nativeBoolToBooleanObject(isMain), object.BindingOptions{SuperGlobal: true})
