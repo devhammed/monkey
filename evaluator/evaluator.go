@@ -35,12 +35,35 @@ var (
 	LOG2E        = &object.Float{Value: math.Log2E}
 	LN10         = &object.Float{Value: math.Ln10}
 	LOG10E       = &object.Float{Value: math.Log10E}
+	superGlobals = map[string]object.Object{}
 	builtins     = map[string]*object.Builtin{}
 )
 
 func init() {
 	for _, arg := range os.Args[1:] {
 		ARGV.Elements = append(ARGV.Elements, &object.String{Value: arg})
+	}
+
+	superGlobals = map[string]object.Object{
+		"VERSION":      VERSION,
+		"ARGV":         ARGV,
+		"STDIN":        STDIN,
+		"STDOUT":       STDOUT,
+		"STDERR":       STDERR,
+		"SEEK_START":   SEEK_START,
+		"SEEK_CURRENT": SEEK_CURRENT,
+		"SEEK_END":     SEEK_END,
+		"E":            E,
+		"PI":           PI,
+		"PHI":          PHI,
+		"SQRT2":        SQRT2,
+		"SQRTE":        SQRTE,
+		"SQRTPI":       SQRTPI,
+		"SQRTPHI":      SQRTPHI,
+		"LN2":          LN2,
+		"LOG2E":        LOG2E,
+		"LN10":         LN10,
+		"LOG10E":       LOG10E,
 	}
 }
 
@@ -68,62 +91,10 @@ func Run(
 		return nil
 	}
 
-	if _, ok := env.Get("VERSION"); !ok {
-		env.Set("VERSION", VERSION, object.BindingOptions{SuperGlobal: true})
-	}
-	if _, ok := env.Get("ARGV"); !ok {
-		env.Set("ARGV", ARGV, object.BindingOptions{SuperGlobal: true})
-	}
-	if _, ok := env.Get("STDIN"); !ok {
-		env.Set("STDIN", STDIN, object.BindingOptions{SuperGlobal: true})
-	}
-	if _, ok := env.Get("STDOUT"); !ok {
-		env.Set("STDOUT", STDOUT, object.BindingOptions{SuperGlobal: true})
-	}
-	if _, ok := env.Get("STDERR"); !ok {
-		env.Set("STDERR", STDERR, object.BindingOptions{SuperGlobal: true})
-	}
-	if _, ok := env.Get("SEEK_START"); !ok {
-		env.Set("SEEK_START", SEEK_START, object.BindingOptions{SuperGlobal: true})
-	}
-	if _, ok := env.Get("SEEK_CURRENT"); !ok {
-		env.Set("SEEK_CURRENT", SEEK_CURRENT, object.BindingOptions{SuperGlobal: true})
-	}
-	if _, ok := env.Get("SEEK_END"); !ok {
-		env.Set("SEEK_END", SEEK_END, object.BindingOptions{SuperGlobal: true})
-	}
-	if _, ok := env.Get("E"); !ok {
-		env.Set("E", E, object.BindingOptions{SuperGlobal: true})
-	}
-	if _, ok := env.Get("PI"); !ok {
-		env.Set("PI", PI, object.BindingOptions{SuperGlobal: true})
-	}
-	if _, ok := env.Get("PHI"); !ok {
-		env.Set("PHI", PHI, object.BindingOptions{SuperGlobal: true})
-	}
-	if _, ok := env.Get("SQRT2"); !ok {
-		env.Set("SQRT2", SQRT2, object.BindingOptions{SuperGlobal: true})
-	}
-	if _, ok := env.Get("SQRTE"); !ok {
-		env.Set("SQRTE", SQRTE, object.BindingOptions{SuperGlobal: true})
-	}
-	if _, ok := env.Get("SQRTPI"); !ok {
-		env.Set("SQRTPI", SQRTPI, object.BindingOptions{SuperGlobal: true})
-	}
-	if _, ok := env.Get("SQRTPHI"); !ok {
-		env.Set("SQRTPHI", SQRTPHI, object.BindingOptions{SuperGlobal: true})
-	}
-	if _, ok := env.Get("LN2"); !ok {
-		env.Set("LN2", LN2, object.BindingOptions{SuperGlobal: true})
-	}
-	if _, ok := env.Get("LOG2E"); !ok {
-		env.Set("LOG2E", LOG2E, object.BindingOptions{SuperGlobal: true})
-	}
-	if _, ok := env.Get("LN10"); !ok {
-		env.Set("LN10", LN10, object.BindingOptions{SuperGlobal: true})
-	}
-	if _, ok := env.Get("LOG10E"); !ok {
-		env.Set("LOG10E", LOG10E, object.BindingOptions{SuperGlobal: true})
+	for name, constant := range superGlobals {
+		if _, ok := env.Get(name); !ok {
+			env.Set(name, constant, object.BindingOptions{SuperGlobal: true})
+		}
 	}
 
 	env.Set("MAIN", nativeBoolToBooleanObject(isMain), object.BindingOptions{SuperGlobal: true})
