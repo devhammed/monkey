@@ -31,8 +31,15 @@ var (
 	LOG2E    = &object.Float{Value: math.Log2E}
 	LN10     = &object.Float{Value: math.Ln10}
 	LOG10E   = &object.Float{Value: math.Log10E}
+	ARGV     = &object.Array{}
 	builtins = map[string]*object.Builtin{}
 )
+
+func init() {
+	for _, scriptArg := range os.Args[1:] {
+		ARGV.Elements = append(ARGV.Elements, &object.String{Value: scriptArg})
+	}
+}
 
 // Run lexes, parses, and evaluates code
 func Run(
@@ -59,15 +66,7 @@ func Run(
 	}
 
 	if _, ok := env.Get("ARGV"); !ok {
-		args := os.Args[1:]
-
-		var scriptArgs []object.Object
-
-		for _, scriptArg := range args {
-			scriptArgs = append(scriptArgs, &object.String{Value: scriptArg})
-		}
-
-		env.Set("ARGV", &object.Array{Elements: scriptArgs}, object.BindingOptions{SuperGlobal: true})
+		env.Set("ARGV", ARGV, object.BindingOptions{SuperGlobal: true})
 	}
 	if _, ok := env.Get("STDIN"); !ok {
 		env.Set("STDIN", STDIN, object.BindingOptions{SuperGlobal: true})
