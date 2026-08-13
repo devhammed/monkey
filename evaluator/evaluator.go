@@ -359,39 +359,26 @@ func applyFunction(fn object.Object, args []object.Object, env *object.Environme
 			return newError("%s", err.Error())
 		}
 
-		extendedEnv := extendFunctionEnv(fn, args)
+		extendedEnv := object.NewEnclosedEnvironment(fn.Env)
+
+		for paramIdx, param := range fn.Parameters {
+			extendedEnv.Set(param.Value, args[paramIdx], object.BindingOptions{})
+		}
 
 		extendedEnv.Set("arguments", &object.Array{Elements: args}, object.BindingOptions{})
 
 		evaluated := Eval(fn.Body, extendedEnv)
 
-		return unwrapReturnValue(evaluated)
+		if returnValue, ok := evaluated.(*object.ReturnValue); ok {
+			return returnValue.Value
+		}
+
+		return evaluated
 	case *object.Builtin:
 		return fn.Fn(env, args...)
 	default:
 		return newError("not a function: %s", fn.Type())
 	}
-}
-
-func extendFunctionEnv(
-	fn *object.Function,
-	args []object.Object,
-) *object.Environment {
-	env := object.NewEnclosedEnvironment(fn.Env)
-
-	for paramIdx, param := range fn.Parameters {
-		env.Set(param.Value, args[paramIdx], object.BindingOptions{})
-	}
-
-	return env
-}
-
-func unwrapReturnValue(obj object.Object) object.Object {
-	if returnValue, ok := obj.(*object.ReturnValue); ok {
-		return returnValue.Value
-	}
-
-	return obj
 }
 
 func evalIndexExpression(left, index object.Object) object.Object {
@@ -415,25 +402,21 @@ func evalHashLiteral(
 
 	for keyNode, valueNode := range node.Pairs {
 		key := Eval(keyNode, env)
-
 		if isError(key) {
 			return key
 		}
 
 		hashKey, ok := key.(object.Hashable)
-
 		if !ok {
 			return newError("unusable as hash key: %s", key.Type())
 		}
 
 		value := Eval(valueNode, env)
-
 		if isError(value) {
 			return value
 		}
 
 		hashed, err := hashKey.HashKey()
-
 		if err != nil {
 			return newError("hash key error: %s", err.Error())
 		}
@@ -447,7 +430,6 @@ func evalHashLiteral(
 func evalArrayIndexExpression(array, index object.Object) object.Object {
 	arrayObject := array.(*object.Array)
 	idx := index.(*object.Integer).Value
-
 	if idx < 0 || idx >= int64(len(arrayObject.Elements)) {
 		return NULL
 	}
@@ -458,7 +440,6 @@ func evalArrayIndexExpression(array, index object.Object) object.Object {
 func evalHashIndexExpression(hash, index object.Object) object.Object {
 	hashObject := hash.(*object.Hash)
 	key, ok := index.(object.Hashable)
-
 	if !ok {
 		return newError("unusable as hash key: %s", index.Type())
 	}
@@ -469,7 +450,6 @@ func evalHashIndexExpression(hash, index object.Object) object.Object {
 	}
 
 	pair, ok := hashObject.Pairs[hashKey]
-
 	if !ok {
 		return NULL
 	}
@@ -480,7 +460,6 @@ func evalHashIndexExpression(hash, index object.Object) object.Object {
 func evalStringIndexExpression(str, index object.Object) object.Object {
 	stringObject := str.(*object.String)
 	idx := index.(*object.Integer).Value
-
 	if idx < 0 || idx >= int64(len(stringObject.Value)) {
 		return &object.String{Value: ""}
 	}
