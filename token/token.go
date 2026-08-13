@@ -10,7 +10,7 @@ const (
 	// EOF represents an end-of-file token
 	EOF Type = "EOF"
 
-	// IDENT represents an identifier e.g. add, foobar, x, y, ...
+	// IDENT represents an identifier e.g., add, foobar, x, y, ...
 	IDENT Type = "IDENT"
 
 	// INT represents an integer
