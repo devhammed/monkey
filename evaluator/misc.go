@@ -15,7 +15,6 @@ var (
 )
 
 func init() {
-
 	superGlobals["VERSION"] = VERSION
 
 	superGlobals["ARGV"] = ARGV
