@@ -19,8 +19,7 @@ const (
 	HASH_OBJ         Type = "HASH"
 )
 
-// Immutable is the interface for all immutable objects which must implement
-// the Clone() method used by binding names to values.
+// Immutable is the interface for all immutable objects
 type Immutable interface {
 	Clone() Object
 }
