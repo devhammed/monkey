@@ -261,6 +261,9 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 				}
 
 				if idx, ok := index.(*object.Integer); ok {
+					if idx.Value < 0 || idx.Value >= int64(len(array.Elements)) {
+						return newError("index out of range: %d", idx.Value)
+					}
 					array.Elements[idx.Value] = value
 				} else {
 					return newError("cannot index array with %#v", index)
