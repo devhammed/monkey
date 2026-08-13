@@ -1,6 +1,6 @@
 package token
 
-// Type represents type of a token
+// Type represents a type of token
 type Type string
 
 const (
