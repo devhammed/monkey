@@ -18,9 +18,9 @@ var (
 	STDIN        = &object.Resource{Kind: "STDIN", Handle: os.Stdin}
 	STDOUT       = &object.Resource{Kind: "STDOUT", Handle: os.Stdout}
 	STDERR       = &object.Resource{Kind: "STDERR", Handle: os.Stderr}
-	SEEK_START   = &object.Integer{Value: 0}
-	SEEK_CURRENT = &object.Integer{Value: 1}
-	SEEK_END     = &object.Integer{Value: 2}
+	SEEK_START   = &object.Integer{Value: io.SeekStart}
+	SEEK_CURRENT = &object.Integer{Value: io.SeekCurrent}
+	SEEK_END     = &object.Integer{Value: io.SeekEnd}
 )
 
 func init() {
