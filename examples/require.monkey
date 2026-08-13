@@ -2,4 +2,4 @@ hello = require("./hello.monkey")
 
 hello.Greet("Hammed")
 
-println(hello.Hello)
+print(hello.Hello)

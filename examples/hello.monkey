@@ -3,9 +3,9 @@
 # Try to execute this file directly to see the change
 
 if (!MAIN) {
-  println(FILE + " is imported")
+  print(FILE + " is imported")
 } else {
-  println(FILE + " is executed directly")
+  print(FILE + " is executed directly")
 }
 
 hi = "hi world";
@@ -13,5 +13,5 @@ hi = "hi world";
 Hello = "Hello World";
 
 Greet = fn(x) {
-  println("Hello " + x + "!");
+  print("Hello " + x + "!");
 };

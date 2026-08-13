@@ -8,4 +8,4 @@ profile = {
   "metadata": null
 };
 
-println(json_encode(profile));
+print(json_encode(profile));

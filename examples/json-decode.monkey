@@ -2,6 +2,6 @@
 
 payload = json_decode('{"user":{"name":"Hammed"},"ratio":0.75,"roles":["admin","author"]}');
 
-println(payload["user"]["name"]);
-println(payload["ratio"]);
-println(payload["roles"]);
+print(payload["user"]["name"]);
+print(payload["ratio"]);
+print(payload["roles"]);

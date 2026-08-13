@@ -3,8 +3,8 @@
 temperature = 36.5;
 adjusted = temperature + 1;
 
-println(adjusted);
-println(10 / 4);
-println(1e-3);
-println(0.1 + 0.2);
-println(10/0);
+print(adjusted);
+print(10 / 4);
+print(1e-3);
+print(0.1 + 0.2);
+print(10/0);
