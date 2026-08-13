@@ -17,6 +17,7 @@ var (
 	TRUE     = &object.Boolean{Value: true}
 	FALSE    = &object.Boolean{Value: false}
 	VERSION  = &object.String{Value: "v0.2.7"}
+	ARGV     = &object.Array{}
 	STDIN    = &object.Resource{Kind: "stdin", Handle: os.Stdin}
 	STDOUT   = &object.Resource{Kind: "stdout", Handle: os.Stdout}
 	STDERR   = &object.Resource{Kind: "stderr", Handle: os.Stderr}
@@ -31,7 +32,6 @@ var (
 	LOG2E    = &object.Float{Value: math.Log2E}
 	LN10     = &object.Float{Value: math.Ln10}
 	LOG10E   = &object.Float{Value: math.Log10E}
-	ARGV     = &object.Array{}
 	builtins = map[string]*object.Builtin{}
 )
 
