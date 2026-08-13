@@ -13,26 +13,29 @@ import (
 
 // Builtin singletons
 var (
-	NULL     = &object.Null{}
-	TRUE     = &object.Boolean{Value: true}
-	FALSE    = &object.Boolean{Value: false}
-	VERSION  = &object.String{Value: "v0.2.7"}
-	ARGV     = &object.Array{}
-	STDIN    = &object.Resource{Kind: "STDIN", Handle: os.Stdin}
-	STDOUT   = &object.Resource{Kind: "STDOUT", Handle: os.Stdout}
-	STDERR   = &object.Resource{Kind: "STDERR", Handle: os.Stderr}
-	E        = &object.Float{Value: math.E}
-	PI       = &object.Float{Value: math.Pi}
-	PHI      = &object.Float{Value: math.Phi}
-	SQRT2    = &object.Float{Value: math.Sqrt2}
-	SQRTE    = &object.Float{Value: math.SqrtE}
-	SQRTPI   = &object.Float{Value: math.SqrtPi}
-	SQRTPHI  = &object.Float{Value: math.SqrtPhi}
-	LN2      = &object.Float{Value: math.Ln2}
-	LOG2E    = &object.Float{Value: math.Log2E}
-	LN10     = &object.Float{Value: math.Ln10}
-	LOG10E   = &object.Float{Value: math.Log10E}
-	builtins = map[string]*object.Builtin{}
+	NULL         = &object.Null{}
+	TRUE         = &object.Boolean{Value: true}
+	FALSE        = &object.Boolean{Value: false}
+	VERSION      = &object.String{Value: "v0.2.7"}
+	ARGV         = &object.Array{}
+	STDIN        = &object.Resource{Kind: "STDIN", Handle: os.Stdin}
+	STDOUT       = &object.Resource{Kind: "STDOUT", Handle: os.Stdout}
+	STDERR       = &object.Resource{Kind: "STDERR", Handle: os.Stderr}
+	SEEK_START   = &object.Integer{Value: 0}
+	SEEK_CURRENT = &object.Integer{Value: 1}
+	SEEK_END     = &object.Integer{Value: 2}
+	E            = &object.Float{Value: math.E}
+	PI           = &object.Float{Value: math.Pi}
+	PHI          = &object.Float{Value: math.Phi}
+	SQRT2        = &object.Float{Value: math.Sqrt2}
+	SQRTE        = &object.Float{Value: math.SqrtE}
+	SQRTPI       = &object.Float{Value: math.SqrtPi}
+	SQRTPHI      = &object.Float{Value: math.SqrtPhi}
+	LN2          = &object.Float{Value: math.Ln2}
+	LOG2E        = &object.Float{Value: math.Log2E}
+	LN10         = &object.Float{Value: math.Ln10}
+	LOG10E       = &object.Float{Value: math.Log10E}
+	builtins     = map[string]*object.Builtin{}
 )
 
 func init() {
@@ -65,6 +68,9 @@ func Run(
 		return nil
 	}
 
+	if _, ok := env.Get("VERSION"); !ok {
+		env.Set("VERSION", VERSION, object.BindingOptions{SuperGlobal: true})
+	}
 	if _, ok := env.Get("ARGV"); !ok {
 		env.Set("ARGV", ARGV, object.BindingOptions{SuperGlobal: true})
 	}
@@ -77,8 +83,14 @@ func Run(
 	if _, ok := env.Get("STDERR"); !ok {
 		env.Set("STDERR", STDERR, object.BindingOptions{SuperGlobal: true})
 	}
-	if _, ok := env.Get("VERSION"); !ok {
-		env.Set("VERSION", VERSION, object.BindingOptions{SuperGlobal: true})
+	if _, ok := env.Get("SEEK_START"); !ok {
+		env.Set("SEEK_START", SEEK_START, object.BindingOptions{SuperGlobal: true})
+	}
+	if _, ok := env.Get("SEEK_CURRENT"); !ok {
+		env.Set("SEEK_CURRENT", SEEK_CURRENT, object.BindingOptions{SuperGlobal: true})
+	}
+	if _, ok := env.Get("SEEK_END"); !ok {
+		env.Set("SEEK_END", SEEK_END, object.BindingOptions{SuperGlobal: true})
 	}
 	if _, ok := env.Get("E"); !ok {
 		env.Set("E", E, object.BindingOptions{SuperGlobal: true})
