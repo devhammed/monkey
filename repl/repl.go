@@ -22,8 +22,9 @@ func Start() {
 	}
 
 	fmt.Printf(
-		"Hello %s! This is the Monkey programming language!\n",
+		"Hello %s! This is the Monkey %s programming language!\n",
 		currentUser.Username,
+		evaluator.VERSION.Value,
 	)
 
 	fmt.Println("Feel free to type in commands.")
