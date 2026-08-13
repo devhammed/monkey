@@ -185,7 +185,12 @@ func init() {
 					return newError("invalid mode: %q", mode)
 				}
 
-				return &object.Resource{Kind: "FILE", Handle: os.OpenFile(filepath.FromSlash(u.Path), flags, 0644)}
+				handle, err := os.OpenFile(filepath.FromSlash(u.Path), flags, 0644)
+				if err != nil {
+					return newError("unable to open file: %s", err.Error())
+				}
+
+				return &object.Resource{Kind: "FILE", Handle: handle}
 			default:
 				return newError("unsupported protocol: %q", u.Scheme)
 			}
