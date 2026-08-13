@@ -13,10 +13,22 @@ import (
 
 // Builtin singletons
 var (
-	NULL     = &object.Null{}
-	TRUE     = &object.Boolean{Value: true}
-	FALSE    = &object.Boolean{Value: false}
-	VERSION  = &object.String{Value: "v0.2.7"}
+	NULL    = &object.Null{}
+	TRUE    = &object.Boolean{Value: true}
+	FALSE   = &object.Boolean{Value: false}
+	VERSION = &object.String{Value: "v0.2.7"}
+	STDIN   = &object.Resource{
+		Kind:   "stdin",
+		Handle: os.Stdin,
+	}
+	STDOUT = &object.Resource{
+		Kind:   "stdout",
+		Handle: os.Stdout,
+	}
+	STDERR = &object.Resource{
+		Kind:   "stderr",
+		Handle: os.Stderr,
+	}
 	E        = &object.Float{Value: math.E}
 	PI       = &object.Float{Value: math.Pi}
 	PHI      = &object.Float{Value: math.Phi}
@@ -59,22 +71,13 @@ func Run(
 		env.Set("ARGV", &object.Array{Elements: scriptArgs}, object.BindingOptions{SuperGlobal: true})
 	}
 	if _, ok := env.Get("STDIN"); !ok {
-		env.Set("STDIN", &object.Resource{
-			Kind:   "stdin",
-			Handle: os.Stdin,
-		}, object.BindingOptions{SuperGlobal: true})
+		env.Set("STDIN", STDIN, object.BindingOptions{SuperGlobal: true})
 	}
 	if _, ok := env.Get("STDOUT"); !ok {
-		env.Set("STDOUT", &object.Resource{
-			Kind:   "stdout",
-			Handle: os.Stdout,
-		}, object.BindingOptions{SuperGlobal: true})
+		env.Set("STDOUT", STDOUT, object.BindingOptions{SuperGlobal: true})
 	}
 	if _, ok := env.Get("STDERR"); !ok {
-		env.Set("STDERR", &object.Resource{
-			Kind:   "stderr",
-			Handle: os.Stderr,
-		}, object.BindingOptions{SuperGlobal: true})
+		env.Set("STDERR", STDERR, object.BindingOptions{SuperGlobal: true})
 	}
 	if _, ok := env.Get("VERSION"); !ok {
 		env.Set("VERSION", VERSION, object.BindingOptions{SuperGlobal: true})
