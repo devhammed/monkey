@@ -310,24 +310,6 @@ func init() {
 		},
 	}
 
-	builtins["json_encode"] = &object.Builtin{
-		Fn: func(env *object.Environment, args ...object.Object) object.Object {
-			if err := typing.Check("json_encode", args, typing.ExactArgs(1)); err != nil {
-				return newError("%s", err.Error())
-			}
-
-			value, err := objectToJson(args[0])
-			if err != nil {
-				return newError("json_encode: %s", err)
-			}
-			encoded, err := json.Marshal(value)
-			if err != nil {
-				return newError("json_encode: %s", err)
-			}
-			return &object.String{Value: string(encoded)}
-		},
-	}
-
 	builtins["close"] = &object.Builtin{
 		Fn: func(env *object.Environment, args ...object.Object) object.Object {
 			if err := typing.Check("close", args, typing.ExactArgs(1), typing.WithTypes(object.RESOURCE_OBJ)); err != nil {
@@ -343,6 +325,24 @@ func init() {
 				return newError("close: %s", err)
 			}
 			return NULL
+		},
+	}
+
+	builtins["json_encode"] = &object.Builtin{
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
+			if err := typing.Check("json_encode", args, typing.ExactArgs(1)); err != nil {
+				return newError("%s", err.Error())
+			}
+
+			value, err := objectToJson(args[0])
+			if err != nil {
+				return newError("json_encode: %s", err)
+			}
+			encoded, err := json.Marshal(value)
+			if err != nil {
+				return newError("json_encode: %s", err)
+			}
+			return &object.String{Value: string(encoded)}
 		},
 	}
 
