@@ -25,6 +25,7 @@ type Immutable interface {
 	Clone() Object
 }
 
+// Object is the interface for all supported data types
 type Object interface {
 	Type() Type
 	Inspect() string
