@@ -6,6 +6,9 @@ import (
 	"io"
 	"monkey/object"
 	"monkey/typing"
+	"net/url"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -126,6 +129,66 @@ func init() {
 			}
 
 			return &object.String{Value: args[0].(*object.Resource).Kind}
+		},
+	}
+
+	builtins["open"] = &object.Builtin{
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
+			if err := typing.Check("open", args, typing.RangeOfArgs(1, 2), typing.AllOfType(object.STRING_OBJ)); err != nil {
+				return newError("%s", err.Error())
+			}
+
+			path := args[0].(*object.String).Value
+
+			if filepath.IsAbs(path) || filepath.VolumeName(path) != "" {
+				path = "file://" + filepath.ToSlash(path)
+			}
+
+			u, err := url.Parse(path)
+			if err != nil {
+				return newError("%s", err.Error())
+			}
+
+			if u.Scheme == "" {
+				u.Scheme = "file"
+				u.Path = path
+			}
+
+			mode := ""
+
+			if len(args) == 2 {
+				mode = args[1].(*object.String).Value
+			}
+
+			switch u.Scheme {
+			case "file":
+				var flags int
+
+				if mode == "" {
+					mode = "r"
+				}
+
+				switch mode {
+				case "r":
+					flags = os.O_RDONLY
+				case "r+":
+					flags = os.O_RDWR
+				case "w":
+					flags = os.O_WRONLY | os.O_CREATE | os.O_TRUNC
+				case "w+":
+					flags = os.O_RDWR | os.O_CREATE | os.O_TRUNC
+				case "a":
+					flags = os.O_WRONLY | os.O_CREATE | os.O_APPEND
+				case "a+":
+					flags = os.O_RDWR | os.O_CREATE | os.O_APPEND
+				default:
+					return newError("invalid mode: %q", mode)
+				}
+
+				return &object.Resource{Kind: "FILE", Handle: os.OpenFile(filepath.FromSlash(u.Path), flags, 0644)}
+			default:
+				return newError("unsupported protocol: %q", u.Scheme)
+			}
 		},
 	}
 
