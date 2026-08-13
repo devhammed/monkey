@@ -285,24 +285,6 @@ func init() {
 		},
 	}
 
-	builtins["close"] = &object.Builtin{
-		Fn: func(env *object.Environment, args ...object.Object) object.Object {
-			if err := typing.Check("close", args, typing.ExactArgs(1), typing.WithTypes(object.RESOURCE_OBJ)); err != nil {
-				return newError("%s", err.Error())
-			}
-
-			resource := args[0].(*object.Resource)
-			closer, ok := resource.Handle.(io.Closer)
-			if !ok {
-				return newError("close: resource is not closable")
-			}
-			if err := closer.Close(); err != nil {
-				return newError("close: %s", err)
-			}
-			return NULL
-		},
-	}
-
 	builtins["seek"] = &object.Builtin{
 		Fn: func(env *object.Environment, args ...object.Object) object.Object {
 			if err := typing.Check("seek", args, typing.RangeOfArgs(2, 3), typing.WithTypes(object.RESOURCE_OBJ, object.INTEGER_OBJ, object.INTEGER_OBJ)); err != nil {
@@ -315,12 +297,12 @@ func init() {
 				return newError("seek: resource is not seekable")
 			}
 
-			whence := io.SeekStart
+			whence := SEEK_START
 			if len(args) == 3 {
-				whence = int(args[2].(*object.Integer).Value)
+				whence = args[2].(*object.Integer)
 			}
 
-			position, err := seeker.Seek(args[1].(*object.Integer).Value, whence)
+			position, err := seeker.Seek(args[1].(*object.Integer).Value, int(whence.Value))
 			if err != nil {
 				return newError("seek: %s", err)
 			}
@@ -343,6 +325,24 @@ func init() {
 				return newError("json_encode: %s", err)
 			}
 			return &object.String{Value: string(encoded)}
+		},
+	}
+
+	builtins["close"] = &object.Builtin{
+		Fn: func(env *object.Environment, args ...object.Object) object.Object {
+			if err := typing.Check("close", args, typing.ExactArgs(1), typing.WithTypes(object.RESOURCE_OBJ)); err != nil {
+				return newError("%s", err.Error())
+			}
+
+			resource := args[0].(*object.Resource)
+			closer, ok := resource.Handle.(io.Closer)
+			if !ok {
+				return newError("close: resource is not closable")
+			}
+			if err := closer.Close(); err != nil {
+				return newError("close: %s", err)
+			}
+			return NULL
 		},
 	}
 
