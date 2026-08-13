@@ -36,8 +36,8 @@ var (
 )
 
 func init() {
-	for _, scriptArg := range os.Args[1:] {
-		ARGV.Elements = append(ARGV.Elements, &object.String{Value: scriptArg})
+	for _, arg := range os.Args {
+		ARGV.Elements = append(ARGV.Elements, &object.String{Value: arg})
 	}
 }
 
