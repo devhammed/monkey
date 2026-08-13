@@ -4,10 +4,10 @@ const (
 	// ILLEGAL represents an illegal token
 	ILLEGAL = "ILLEGAL"
 
-	// EOF represents end-of-file token
+	// EOF represents an end-of-file token
 	EOF = "EOF"
 
-	// IDENT represents an identifier e.g add, foobar, x, y, ...
+	// IDENT represents an identifier e.g. add, foobar, x, y, ...
 	IDENT = "IDENT"
 
 	// INT represents an integer
@@ -16,10 +16,10 @@ const (
 	// FLOAT represents a floating-point number
 	FLOAT = "FLOAT"
 
-	// ASSIGN is assignment token
+	// ASSIGN is an assignment token
 	ASSIGN = "="
 
-	// PLUS is addition token
+	// PLUS is an addition token
 	PLUS = "+"
 
 	// MINUS is substration token
@@ -28,7 +28,7 @@ const (
 	// BANG is a bang token
 	BANG = "!"
 
-	// ASTERISK is multiplication token
+	// ASTERISK is a multiplication token
 	ASTERISK = "*"
 
 	// SLASH is a slash token
@@ -76,10 +76,10 @@ const (
 	// NULL represents a null value
 	NULL = "NULL"
 
-	// IF is a if statement token
+	// IF is an if statement token
 	IF = "IF"
 
-	// ELSE is a else statement token
+	// ELSE is an else statement token
 	ELSE = "ELSE"
 
 	// RETURN is a return statement token
@@ -88,19 +88,19 @@ const (
 	// STRING represents a string literal
 	STRING = "STRING"
 
-	// LBRACKET is left bracket token
+	// LBRACKET is the left bracket token
 	LBRACKET = "["
 
-	// RBRACKET is right bracket token
+	// RBRACKET is the right bracket token
 	RBRACKET = "]"
 
 	// COLON is a colon token
 	COLON = ":"
 
-	// COMMENT is a comment
-	COMMENT = "#"
+	// HASH is a hash token
+	HASH = "#"
 
-	// DOT is a dot
+	// DOT is a dot token
 	DOT = "."
 )
 

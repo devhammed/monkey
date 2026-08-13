@@ -154,7 +154,7 @@ func (p *Parser) registerInfix(tokenType token.Type, fn infixParseFn) {
 
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.curToken.Type {
-	case token.COMMENT:
+	case token.HASH:
 		return p.parseComment()
 	case token.RETURN:
 		return p.parseReturnStatement()

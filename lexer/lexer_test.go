@@ -40,7 +40,7 @@ return false;
 		expectedType    token.Type
 		expectedLiteral string
 	}{
-		{token.COMMENT, " this is a comment"},
+		{token.HASH, " this is a comment"},
 		{token.IDENT, "five"},
 		{token.ASSIGN, "="},
 		{token.INT, "5"},

@@ -34,7 +34,7 @@ func (l *Lexer) NextToken() token.Token {
 
 	switch l.ch {
 	case '#':
-		tok.Type = token.COMMENT
+		tok.Type = token.HASH
 		tok.Literal = l.readLine()
 	case '.':
 		tok = l.newToken(token.DOT)
